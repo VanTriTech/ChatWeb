@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fab fa-facebook"></i>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Trang chủ</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-search"></i>
+                    <span>Khám phá</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Thông báo</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Tin nhắn</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Grok</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users"></i>
+                    <span>Cộng đồng</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>Hồ sơ</span>
+                </a>
+                <button class="tweet-btn">Đăng</button>
+            </nav>
+            <!-- User Profile Mini -->
+            <div class="user-profile-mini">
+                <img src="https://pbs.twimg.com/profile_images/1555161839084130305/qdiqtMRU_400x400.jpg" alt="Avatar">
+                <div class="user-info">
+                    <span class="user-name">白リリ</span>
+                    <span class="user-handle">@Tennguoidung</span>
+                </div>
+                <i class="fas fa-ellipsis" onclick="handleLogout()"></i>
+            </div>
+        </aside>
+<div class="comments-section" id="comments-section">
+    <div class="comment-form">
+        <input
+            type="text"
+            class="comment-input"
+            placeholder="Viết bình luận..."
+            onkeypress="handleComment(event)"
+        />
+    </div>
+    <div class="comment-list" id="comment-list">
+        <!-- Bình luận sẽ được thêm vào đây -->
+    </div>
+</div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="banner-image">
+                    <img src="https://pbs.twimg.com/profile_banners/1535225039523840001/1654861876/1500x500" alt="Banner">
+                </div>
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <img src="https://pbs.twimg.com/profile_images/1555161839084130305/qdiqtMRU_400x400.jpg" alt="Avatar">
+                    </div>
+                    <div class="profile-details">
+                        <h1 class="profile-name">白リリ</h1>
+                        <p class="profile-username">@Tennguoidung</p>
+                        <div class="bio">
+                            <p>Dòng 1</p>
+                            <p>Dòng 2</p>
+                            <p>Dòng 3</p>
+                        </div>
+                        <div class="join-date">
+                            <i class="far fa-calendar"></i>
+                            Đã tham gia tháng 5 năm 2010
+                        </div>
+                        <div class="follow-stats">
+                            <span><b>13</b> Đang theo dõi</span>
+                            <span><b>150,9N</b> Người theo dõi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Navigation -->
+<nav class="profile-nav">
+    <div class="nav-items">
+        <a href="#" class="nav-item active" data-tab="posts">Bài Đăng</a>
+        <a href="#" class="nav-item" data-tab="replies">Phản Hồi</a>
+        <a href="#" class="nav-item" data-tab="highlights">Nổi Bật</a>
+        <a href="#" class="nav-item" data-tab="media">Media</a>
+    </div>
+</nav>
+
+            <!-- Content Sections -->
+<div class="content-sections">
+    <div id="posts-section" class="content-section active">
+        <div class="post-form">
+            <img src="https://pbs.twimg.com/profile_images/1555161839084130305/qdiqtMRU_400x400.jpg" alt="Avatar" class="post-avatar">
+            <div class="post-input-wrapper">
+                <textarea id="post-input" placeholder="Bạn đang nghĩ gì?"></textarea>
+                <div class="post-actions">
+                    <div class="media-upload">
+                        <label for="media-input">
+                            <i class="far fa-image"></i>
+                        </label>
+                        <input type="file" id="media-input" accept="image/*,video/*" multiple hidden>
+                    </div>
+                    <button id="post-button" disabled>Đăng</button>
+                </div>
+            </div>
+        </div>
+        <div id="posts-container" class="posts-container"></div>
+    </div>
+
+    <div id="replies-section" class="content-section">
+        <div class="empty-state">
+            <p>Chưa có thông tin.</p>
+        </div>
+    </div>
+
+    <div id="highlights-section" class="content-section">
+        <div class="empty-state">
+            <p>Chưa có thông tin.</p>
+        </div>
+    </div>
+
+    <div id="media-section" class="content-section">
+        <div class="empty-state">
+            <p>Chưa có thông tin.</p>
+        </div>
+    </div>
+</div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="right-sidebar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Tìm kiếm">
+            </div>
+
+            <!-- Chat Widget -->
+            <div class="chat-widget">
+                <div class="chat-header">
+                    <span>Tin nhắn</span>
+                    <button class="expand-btn">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div class="chat-content">
+                    <div class="chat-list">
+                        <div class="chat-item active">
+                            <img src="https://scontent.fsgn5-3.fna.fbcdn.net/v/t39.30808-6/370359771_314608017596982_7845257365469445897_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=-Kau_hq2KjQQ7kNvgFAf4tI&_nc_zt=23&_nc_ht=scontent.fsgn5-3.fna&_nc_gid=AVEUskbvpQrs895OEV9Aq-F&oh=00_AYDOfH4SGUYKZup97nKnyOKIvB9UpQof7qKP18Sz8-SgyQ&oe=674809E5" alt="Avatar" class="chat-avatar">
+                            <div class="chat-info">
+                                <span class="chat-name">Người dùng 1</span>
+                                <span class="chat-preview">Tin nhắn cuối...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-messages"></div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" placeholder="Nhập tin nhắn...">
+                        <div class="chat-actions">
+                            <label for="chat-media">
+                                <i class="far fa-image"></i>
+                            </label>
+                            <input type="file" id="chat-media" accept="image/*,video/*" hidden>
+                            <button class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
