@@ -7,17 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: url('pics/bg-login.wmz') no-repeat center center fixed;
-        background-size: cover;
-        margin: 0;
-        color: #fff;
-    }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('pics/bg-login.wmz') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            color: #fff;
+        }
         .login-container {
             width: 100%;
             max-width: 400px;
@@ -83,6 +82,141 @@
             font-size: 14px;
         }
     </style>
+    <!-- Script bảo vệ - thêm vào đầu trang -->
+    <script>
+        (function() {
+            let isLocked = false;
+            
+            const lockPage = () => {
+                if (isLocked) return;
+                isLocked = true;
+
+                document.documentElement.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: #000;
+                        color: #ff0000;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        font-family: monospace;
+                        z-index: 999999999;
+                    ">
+                        <div style="font-size: 4em; color: #ff0000; text-shadow: 0 0 10px #ff0000; animation: glitch 0.5s infinite;">
+                            ⚠️ CRITICAL SECURITY BREACH ⚠️
+                        </div>
+                        <div style="font-size: 2em; margin: 20px 0; color: #ff3333;">
+                            UNAUTHORIZED ACCESS DETECTED
+                        </div>
+                        <div style="font-size: 1.5em; color: #ff6666;">
+                            SYSTEM COMPROMISED - INITIATING LOCKDOWN
+                        </div>
+                        <div style="font-size: 1.2em; margin: 20px 0; color: #ff4444;">
+                            <div>IP: <span id="ip"></span></div>
+                            <div>SYSTEM: ${navigator.platform}</div>
+                            <div>BROWSER: ${navigator.userAgent}</div>
+                            <div>TIME: ${new Date().toISOString()}</div>
+                        </div>
+                        <div id="countdown" style="font-size: 2em; color: #ff0000; margin-top: 20px;"></div>
+                    </div>
+                `;
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes glitch {
+                        0% { transform: translate(0) skew(0deg) }
+                        20% { transform: translate(-2px, 2px) skew(2deg) }
+                        40% { transform: translate(-2px, -2px) skew(-2deg) }
+                        60% { transform: translate(2px, 2px) skew(-2deg) }
+                        80% { transform: translate(2px, -2px) skew(2deg) }
+                        100% { transform: translate(0) skew(0deg) }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                fetch('https://api.ipify.org?format=json')
+                    .then(r => r.json())
+                    .then(data => {
+                        document.getElementById('ip').textContent = data.ip;
+                    });
+
+                let timeLeft = 15;
+                const countdown = document.getElementById('countdown');
+                const timer = setInterval(() => {
+                    countdown.textContent = `SYSTEM TERMINATION IN: ${timeLeft}s`;
+                    timeLeft--;
+                    if (timeLeft < 0) {
+                        clearInterval(timer);
+                        window.location.href = "about:blank";
+                    }
+                }, 1000);
+
+                try {
+                    const audio = new AudioContext();
+                    const oscillator = audio.createOscillator();
+                    const gainNode = audio.createGain();
+                    
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(100, audio.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, audio.currentTime);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audio.destination);
+                    
+                    oscillator.start();
+                    
+                    setInterval(() => {
+                        oscillator.frequency.setValueAtTime(
+                            Math.sin(audio.currentTime * 2) * 50 + 100,
+                            audio.currentTime
+                        );
+                    }, 100);
+
+                    setTimeout(() => oscillator.stop(), 15000);
+                } catch(e) {}
+            };
+
+            // Chặn phím tắt
+            document.addEventListener('keydown', function(e) {
+                if (
+                    e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+                    (e.ctrlKey && e.key === 'U')
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    lockPage();
+                }
+            }, true);
+
+            // Chặn chuột phải
+            document.addEventListener('contextmenu', e => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, true);
+
+            // Kiểm tra DevTools
+            setInterval(() => {
+                const threshold = 160;
+                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+                
+                if (widthThreshold || heightThreshold) {
+                    lockPage();
+                }
+            }, 100);
+
+            // Kiểm tra khi load trang
+            if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+                lockPage();
+            }
+        })();
+    </script>
 </head>
 <body>
     <div class="login-container">
@@ -106,6 +240,5 @@
         </form>
         <p class="note">Chưa có tài khoản? Liên hệ quản trị viên.</p>
     </div>
-    <script src="login.js"></script>
 </body>
 </html>
