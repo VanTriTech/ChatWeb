@@ -147,8 +147,8 @@ body {
 }
 
 .profile-avatar {
-    margin-top: -80px;
-    margin-bottom: 16px;
+    margin-top: -90px;
+    margin-bottom: 6px;
 }
 
 .profile-avatar img {
@@ -187,7 +187,6 @@ body {
 .follow-stats b {
     color: #fff;
 }
-
 /* Profile Navigation */
 .profile-nav {
     position: sticky;
@@ -264,6 +263,94 @@ body {
     margin-bottom: 12px;
 }
 
+/* Post Media Styles */
+.post-media {
+    display: grid;
+    gap: 2px;
+    margin: 12px auto;
+    border-radius: 16px;
+    overflow: visible; /* Cho phép hiển thị tất cả ảnh */
+    background-color: #16181c;
+    width: fit-content;
+    grid-template-columns: repeat(2, 300px);
+    grid-auto-rows: 300px;
+    grid-auto-flow: row; /* Đảm bảo ảnh xếp theo hàng */
+    max-height: none; /* Bỏ giới hạn chiều cao */
+}
+
+/* Single image */
+.post-media.single-image {
+    grid-template-columns: 1fr;
+    width: 300px;
+}
+
+/* Two images */
+.post-media.two-images {
+    grid-template-columns: repeat(2, 300px);
+}
+
+/* Three or more images */
+.post-media.three-images,
+.post-media.multiple-images {
+    grid-template-columns: repeat(2, 300px);
+    max-height: none; /* Bỏ giới hạn chiều cao */
+    height: auto; /* Cho phép chiều cao tự động theo nội dung */
+}
+
+/* Image container */
+.image-container {
+    position: relative;
+    overflow: hidden;
+    background-color: #16181c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.image-container:hover img {
+    transform: scale(1.1);
+}
+/* Post Actions */
+.post-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 80px;
+    margin-top: 12px;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    color: #71767b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.action-button:hover {
+    color: #1d9bf0;
+}
+
+.action-button.like-button:hover {
+    color: #f91880;
+}
+
+.action-button.liked {
+    color: #f91880;
+}
+
 /* Media Preview */
 .media-preview {
     display: grid;
@@ -277,13 +364,14 @@ body {
     aspect-ratio: 16/9;
     border-radius: 16px;
     overflow: hidden;
+    background-color: #16181c;
 }
 
 .preview-item img,
 .preview-item video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .remove-preview {
@@ -333,15 +421,18 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
 }
-
 /* Posts */
 .post {
-    padding: 16px;
+    padding: 20px;
     border-bottom: 1px solid #2f3336;
     display: flex;
     gap: 12px;
+    transition: background-color 0.2s;
 }
 
+.post:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
 .post-content {
     flex: 1;
 }
@@ -349,17 +440,24 @@ body {
 .post-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
 .post-info {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
 }
 
-.post-name {
-    font-weight: bold;
+.post-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.post-username, .post-time {
+    color: #71767b;
+    font-size: 14px;
 }
 
 .post-username {
@@ -419,50 +517,75 @@ body {
     color: #f4212e;
 }
 
-/* Post Media */
-.post-media {
-    margin: 12px 0;
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.post-media img,
-.post-media video {
-    width: 100%;
-    max-height: 500px;
-    object-fit: contain;
-    background: #000;
-}
-
-/* Post Interactions */
-.post-actions {
+/* Modal styles */
+.image-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
     display: flex;
-    justify-content: flex-start;
-    gap: 80px;
-    margin-top: 12px;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
 }
 
-.action-button {
-    background: none;
-    border: none;
-    color: #71767b;
+.image-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    max-width: 80vw;
+    max-height: 80vh;
+    background-color: transparent;
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+}
+
+.modal-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.modal-nav button,
+.modal-close {
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.action-button:hover {
-    color: #1d9bf0;
-}
-
-.action-button.like-button:hover {
-    color: #f91880;
-}
-
-.action-button.liked {
-    color: #f91880;
+.modal-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 14px;
 }
 
 /* Comments Section */
@@ -482,15 +605,17 @@ body {
     color: #fff;
     font-size: 14px;
     outline: none;
-    margin-bottom: 16px; /* Tạo khoảng cách với danh sách bình luận */
+    margin-bottom: 16px;
     box-sizing: border-box;
 }
+
 .comment-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-top: 12px; /* Tách biệt với input */
+    margin-top: 12px;
 }
+
 .comment-item {
     display: flex;
     align-items: flex-start;
@@ -500,32 +625,39 @@ body {
     border-radius: 8px;
     position: relative;
 }
+
 .comment-avatar {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    object-fit: cover;
-}
-.comment {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 12px;
 }
 
 .comment-content {
     flex: 1;
-    display: flex;
-    flex-direction: column;
 }
+.comment-text-container {
+    background: #3a3b3c;
+    border-radius: 14px;
+    padding: 6px 10px;
+    display: inline-block;
+}
+.reply-target {
+    color: #2374e1;
+    font-weight: 500;
+    margin-right: 4px;
+}
+
 .comment-header .comment-time {
     font-size: 12px;
     color: #aaa;
 }
+
 .comment-text {
-    font-size: 15px;
-    color: #fff;
-    line-height: 1.4;
+    margin: 0;
+    font-size: 0.95em;
 }
+
+
 .comment-delete {
     background: none;
     border: none;
@@ -537,15 +669,9 @@ body {
     right: 8px;
     display: none;
 }
+
 .comment-item:hover .comment-delete {
     display: block;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #71767b;
 }
 
 /* Right Sidebar */
@@ -576,7 +702,26 @@ body {
     font-size: 15px;
     outline: none;
 }
-/* Nội dung tab được hiển thị */
+
+/* Responsive */
+@media (max-width: 768px) {
+    .post-media.single-image img {
+        max-height: 400px;
+    }
+    
+    .modal-content {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .modal-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+/* Content Sections */
 .content-section {
     display: none;
 }
@@ -585,31 +730,581 @@ body {
     display: block;
 }
 
-/* Style cho tab navigation */
-.nav-item {
-    padding: 16px;
-    cursor: pointer;
+/* Empty State */
+.empty-state {
     text-align: center;
+    padding: 40px;
     color: #71767b;
-    text-decoration: none;
-    position: relative;
-    transition: color 0.2s;
+}
+/* Comment Actions */
+.comment-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+    margin-left: 12px;
+}
+.comment:hover .comment-actions {
+    display: flex;
 }
 
-.nav-item:hover,
-.nav-item.active {
+.edit-comment,
+.delete-comment {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.edit-comment {
+    color: #1d9bf0;
+}
+
+.delete-comment {
+    color: #f4212e;
+}
+
+.edit-comment:hover,
+.delete-comment:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Edit Comment Form */
+.edit-comment-input {
+    width: 100%;
+    background: #202327;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 8px;
     color: #fff;
+    margin: 4px 0;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.edit-comment-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.edit-comment-actions button {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
     font-weight: bold;
 }
 
-.nav-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 56px;
-    height: 4px;
+.save-edit {
     background-color: #1d9bf0;
-    border-radius: 9999px;
+    color: #fff;
+}
+
+.cancel-edit {
+    background-color: transparent;
+    color: #1d9bf0;
+    border: 1px solid #1d9bf0 !important;
+}
+
+.save-edit:hover {
+    background-color: #1a8cd8;
+}
+
+.cancel-edit:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+}
+.comment-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    align-items: center;
+}
+
+.comment-actions button {
+    background: none;
+    border: none;
+    color: #b0b3b8;
+    font-size: 0.9em;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+}
+
+.comment-actions button i {
+    font-size: 16px;
+}
+
+.comment-actions .like-btn:hover,
+.comment-actions .like-btn.active {
+    color: #1d9bf0;
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+.comment-actions .heart-btn:hover,
+.comment-actions .heart-btn.active {
+    color: #f91880;
+    background-color: rgba(249, 24, 128, 0.1);
+}
+
+.comment-actions .angry-btn:hover,
+.comment-actions .angry-btn.active {
+    color: #f7a239;
+    background-color: rgba(247, 162, 57, 0.1);
+}
+
+.reaction-count {
+    font-size: 14px;
+    min-width: 20px;
+    text-align: center;
+}
+.comment-actions button.active i.fa-thumbs-up {
+    color: #1d9bf0;
+    font-weight: 900;
+}
+
+.comment-actions button.active i.fa-heart {
+    color: #f91880;
+    font-weight: 900;
+}
+
+.comment-actions button.active i.fa-angry {
+    color: #f7a239;
+    font-weight: 900;
+}
+/* Like button styles */
+.comment-actions .like-btn {
+    color: #71767b;
+}
+
+.comment-actions .like-btn:hover,
+.comment-actions .like-btn.active {
+    color: #1d9bf0;
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+.comment-actions .like-btn.active i {
+    color: #1d9bf0;
+}
+
+/* Heart button styles */
+.comment-actions .heart-btn {
+    color: #71767b;
+}
+
+.comment-actions .heart-btn:hover,
+.comment-actions .heart-btn.active {
+    color: #f91880;
+    background-color: rgba(249, 24, 128, 0.1);
+}
+
+.comment-actions .heart-btn.active i {
+    color: #f91880;
+}
+
+/* Angry button styles */
+.comment-actions .angry-btn {
+    color: #71767b;
+}
+
+.comment-actions .angry-btn:hover,
+.comment-actions .angry-btn.active {
+    color: #f7a239;
+    background-color: rgba(247, 162, 57, 0.1);
+}
+
+.comment-actions .angry-btn.active i {
+    color: #f7a239;
+}
+
+/* Reaction count styles */
+.reaction-count {
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 20px;
+}
+
+/* Edit and Delete buttons */
+.comment-actions .edit-comment,
+.comment-actions .delete-comment {
+    padding: 6px;
+    border-radius: 50%;
+    opacity: 0.7;
+}
+
+.comment-actions .edit-comment:hover,
+.comment-actions .delete-comment:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.comment-actions .edit-comment {
+    color: #1d9bf0;
+}
+
+.comment-actions .delete-comment {
+    color: #f4212e;
+}
+
+/* Active state icons */
+.comment-actions button.active i {
+    font-weight: 900; /* Makes the icon solid when active */
+}
+
+/* Hover effects */
+.comment-actions button:hover {
+    text-decoration: underline;
+}
+.comment-actions button.active {
+    color: #2374e1;
+}
+
+/* Separator between reactions and edit/delete */
+.comment-actions .edit-comment,
+.comment-actions .delete-comment {
+    margin-left: auto;
+}
+/* CSS cho comment */
+.comment {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding: 4px 6px;
+    font-size: 0.9em;
+}
+
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.comment-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.comment-name {
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-right: 4px;
+}
+
+/* Menu 3 chấm */
+.comment-menu {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+}
+
+.comment-menu-button {
+    background: none;
+    border: none;
+    color: #b0b3b8;
+    cursor: pointer;
+}
+
+.comment-menu-button:hover {
+    opacity: 1;
+}
+
+.comment-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: #242526;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 1000;
+}
+
+
+.comment-menu-dropdown.active {
+    display: block;
+}
+
+.menu-item {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #e4e6eb;
+}
+
+.menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item i {
+    width: 20px;
+}
+
+.menu-item.edit i {
+    color: #2374e1;
+}
+
+.menu-item.delete i {
+    color: #e41e3f;
+}
+/* CSS cho reply comments */
+.reply-button {
+    color: #2374e1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.reply-button:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.reply-form {
+    margin-left: 40px;
+    margin-top: 8px;
+    display: none;
+}
+
+.reply-form.active {
+    display: block;
+}
+
+.reply-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 18px;
+    border: none;
+    background: #3a3b3c;
+    color: #e4e6eb;
+}
+
+/* CSS cho replies */
+.reply-comment {
+    margin-left: 40px;
+    margin-top: 4px;
+    display: flex;
+    gap: 1px; /* Giảm khoảng cách */
+}
+.reply-text-container {
+    background: #3a3b3c;
+    border-radius: 14px; /* Giảm border radius */
+    padding: 6px 10px; /* Giảm padding */
+    display: inline-block;
+}
+
+.reply-text::before {
+    content: "Trả lời: ";
+    color: #65676b;
+}
+
+.reply-to {
+    color: #b0b3b8;
+    font-size: 0.9em;
+    margin-top: 2px;
+}
+.reply-to span {
+    color: #2374e1;
+    cursor: pointer;
+}
+/* Form reply */
+.reply-form {
+    margin-left: 40px;
+    margin-top: 8px;
+    display: none;
+}
+
+.reply-form.active {
+    display: block;
+}
+
+.reply-input {
+    width: 100%;
+    background: #3a3b3c;
+    border: none;
+    border-radius: 18px;
+    padding: 8px 12px;
+    color: #e4e6eb;
+}
+
+.reply-input:focus {
+    outline: none;
+}
+
+.replies {
+    margin-left: 40px;
+}
+
+.reply-comment {
+    margin-left: 40px;
+    margin-top: 4px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+.reply-avatar {
+    width: 24px; /* Giảm kích thước avatar */
+    height: 24px;
+    border-radius: 50%;
+}
+.reply-content {
+    flex: 1;
+}
+
+.reply-text {
+    margin: 4px 0;
+    color: #e4e6eb;
+    position: relative;
+    padding-left: 55px;
+}
+
+.reply-text::before {
+    content: "Trả lời: ";
+    color: #b0b3b8;
+    font-weight: 500;
+    position: absolute;
+    left: 0;
+}
+
+.reply-button {
+    color: #2374e1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.reply-button:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+/* Điều chỉnh actions trong reply */
+.reply-comment .comment-actions {
+    margin-top: 2px;
+    margin-left: 8px;
+    font-size: 0.9em; /* Thu nhỏ font size */
+}
+
+.reply-comment .comment-actions button {
+    padding: 2px 6px; /* Giảm padding của nút */
+    font-size: 0.9em;
+}
+
+.reply-comment .reaction-count {
+    font-size: 0.9em;
+    margin-left: 2px;
+}
+/* CSS cho phần ẩn/hiện comments và replies */
+.comment.hidden,
+.reply-comment.hidden {
+    display: none;
+}
+
+.show-more-comments,
+.show-more-replies {
+    background: none;
+    border: none;
+    color: #2374e1;
+    font-size: 0.9em;
+    padding: 4px 8px;
+    margin: 4px 0;
+    cursor: pointer;
+    display: block;
+}
+
+.show-more-comments:hover,
+.show-more-replies:hover {
+    text-decoration: underline;
+}
+
+.show-more-replies {
+    margin-left: 34px;
+    font-size: 0.85em;
+}
+/* CSS cho nút xem thêm */
+.show-more-comments,
+.show-more-replies {
+    color: #2374e1;
+    font-size: 0.8em;
+    padding: 4px 0;
+    margin: 2px 0;
+    cursor: pointer;
+    display: block;
+}
+
+.show-more-comments:hover,
+.show-more-replies:hover {
+    text-decoration: underline;
+}
+
+.show-more-replies {
+    margin-left: 34px;
+    font-size: 0.75em;
+}
+
+/* Ẩn comments/replies */
+.comment.hidden,
+.reply-comment.hidden {
+    display: none;
+}
+
+/* Thêm thuộc tính timestamp cho comments/replies */
+.comment,
+.reply-comment {
+    position: relative;
+}
+/* Cập nhật style cho nút xem thêm */
+.show-more-comments,
+.show-more-replies {
+    color: #2374e1;
+    font-size: 0.8em;
+    padding: 4px 0;
+    margin: 2px 0;
+    cursor: pointer;
+    display: block;
+}
+
+.show-more-comments:hover,
+.show-more-replies:hover {
+    text-decoration: underline;
+}
+
+.show-more-replies {
+    margin-left: 34px;
+    font-size: 0.75em;
+}
+.hidden {
+    display: none;
+}
+.comment-input {
+    width: 100%;
+    min-height: 36px;
+    max-height: 150px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 18px;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.4;
+    overflow-y: hidden;
+}
+
+.comment-input:focus {
+    border-color: #1da1f2;
 }
