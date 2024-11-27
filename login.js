@@ -268,3 +268,10 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutBtn.addEventListener('click', handleLogout);
     }
 });
+// Thêm vào đầu file login.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Nếu đã đăng nhập, không cho quay lại trang login
+    if (localStorage.getItem('isLoggedIn')) {
+        window.location.replace('https://vantritech.github.io/Shop/index.html');
+    }
+});
