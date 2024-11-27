@@ -226,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Hàm xử lý thêm video YouTube
+// Thêm hàm xử lý video YouTube
 function addVideoFromLink() {
     const videoUrl = prompt('Nhập link video YouTube:');
     if (!videoUrl) return;
@@ -258,9 +259,8 @@ function extractYouTubeId(url) {
     // Update Media Preview
 // Cập nhật hàm updateMediaPreview để hỗ trợ video YouTube
 function updateMediaPreview() {
-    const mediaPreview = document.querySelector('.media-preview');
     if (!mediaPreview) return;
-
+    
     mediaPreview.innerHTML = selectedMedia.map((media, index) => {
         if (media.type === 'youtube') {
             return `
