@@ -385,6 +385,7 @@ function loadPosts() {
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
+    
         
         // Setup collapse cho replies của mỗi comment
         post.comments.forEach(comment => {
@@ -1037,13 +1038,6 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
-    restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
