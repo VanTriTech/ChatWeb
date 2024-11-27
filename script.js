@@ -210,10 +210,51 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         });
     });
+// Thêm hàm xử lý video YouTube
+function addVideoFromLink() {
+    const videoUrl = prompt('Nhập link video YouTube:');
+    if (!videoUrl) return;
+
+    // Lấy video ID từ URL YouTube
+    const videoId = extractYouTubeId(videoUrl);
+    if (!videoId) {
+        alert('Link video không hợp lệ. Vui lòng kiểm tra lại.');
+        return;
+    }
+
+    // Thêm video vào selectedMedia
+    selectedMedia.push({
+        type: 'youtube',
+        url: `https://www.youtube.com/embed/${videoId}`,
+        videoId: videoId
+    });
+
+    updateMediaPreview();
+    updatePostButton();
+}
+
+// Hàm trích xuất ID video từ URL YouTube
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
 
     // Update Media Preview
-    function updateMediaPreview() {
-        mediaPreview.innerHTML = selectedMedia.map((media, index) => `
+// Cập nhật hàm updateMediaPreview để hỗ trợ video YouTube
+function updateMediaPreview() {
+    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
+        if (media.type === 'youtube') {
+            return `
+                <div class="preview-item youtube-video">
+                    <iframe src="${media.url}" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen></iframe>
+                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+                </div>
+            `;
+        }
+        return `
             <div class="preview-item">
                 ${media.type === 'image' 
                     ? `<img src="${media.url}" alt="Preview">`
@@ -221,9 +262,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 <button class="remove-preview" onclick="removeMedia(${index})">×</button>
             </div>
-        `).join('');
-        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-    }
+        `;
+    }).join('');
+    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+}
 
     // Remove Media
     window.removeMedia = function(index) {
