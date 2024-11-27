@@ -106,21 +106,6 @@
         </form>
         <p class="note">Chưa có tài khoản? Liên hệ quản trị viên.</p>
     </div>
-        <script>
-        // Kiểm tra và sửa URL khi tải trang
-        if (window.location.pathname !== '/Shop/') {
-            const newUrl = window.location.origin + '/Shop/';
-            window.history.replaceState(null, '', newUrl);
-        }
-
-        // Lắng nghe sự kiện popstate (khi người dùng nhấn nút back/forward của trình duyệt)
-        window.addEventListener('popstate', function() {
-            if (window.location.pathname !== '/Shop/') {
-                const newUrl = window.location.origin + '/Shop/';
-                window.history.replaceState(null, '', newUrl);
-            }
-        });
-    </script>
     <script src="login.js"></script>
 </body>
 </html>
