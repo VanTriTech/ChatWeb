@@ -1566,36 +1566,76 @@ document.addEventListener('DOMContentLoaded', function() {
         handleVideoUpload(e.target.files);
     });
     
-    function handleVideoUpload(files) {
-        Array.from(files).forEach(file => {
-            if (!file.type.startsWith('video/')) {
-                alert('Vui lòng chỉ tải lên file video!');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const videoPost = {
-                    id: Date.now(),
-                    type: 'video',
-                    url: e.target.result,
-                    author: {
-                        name: document.querySelector('.profile-name').textContent,
-                        username: document.querySelector('.profile-username').textContent,
-                        avatar: document.querySelector('.profile-avatar img').src
-                    },
-                    timestamp: new Date().toISOString(),
-                    likes: 0,
-                    likes2: 0,
-                    comments: []
-                };
-                
-                saveVideoPost(videoPost);
-                addVideoToDOM(videoPost);
+function handleVideoUpload(files) {
+    Array.from(files).forEach(file => {
+        if (!file.type.startsWith('video/')) {
+            alert('Vui lòng chỉ tải lên file video!');
+            return;
+        }
+
+        // Tạo loading indicator
+        const loadingPost = createLoadingPost();
+        const mediaContainer = document.getElementById('media-posts-container');
+        mediaContainer.insertBefore(loadingPost, mediaContainer.firstChild);
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Khi video đã load xong
+            const videoPost = {
+                id: Date.now(),
+                type: 'video',
+                url: e.target.result,
+                author: {
+                    name: document.querySelector('.profile-name').textContent,
+                    username: document.querySelector('.profile-username').textContent,
+                    avatar: document.querySelector('.profile-avatar img').src
+                },
+                timestamp: new Date().toISOString(),
+                likes: 0,
+                likes2: 0,
+                comments: []
             };
-            reader.readAsDataURL(file);
-        });
-    }
+
+            // Xóa loading indicator và thêm video post
+            loadingPost.remove();
+            saveVideoPost(videoPost);
+            addVideoToDOM(videoPost);
+        };
+
+        // Hiển thị tiến trình upload
+        reader.onprogress = function(e) {
+            if (e.lengthComputable) {
+                const progress = Math.round((e.loaded / e.total) * 100);
+                updateLoadingProgress(loadingPost, progress);
+            }
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+    // Tạo loading indicator
+function createLoadingPost() {
+    const loadingElement = document.createElement('div');
+    loadingElement.className = 'video-post loading';
+    loadingElement.innerHTML = `
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Đang tải video... <span class="loading-progress">0%</span></div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+    `;
+    return loadingElement;
+}
+    // Cập nhật tiến trình
+function updateLoadingProgress(loadingElement, progress) {
+    const progressText = loadingElement.querySelector('.loading-progress');
+    const progressFill = loadingElement.querySelector('.progress-fill');
+    
+    progressText.textContent = `${progress}%`;
+    progressFill.style.width = `${progress}%`;
+}
     
     function saveVideoPost(post) {
         const mediaPosts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
