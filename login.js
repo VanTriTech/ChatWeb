@@ -177,17 +177,17 @@ document.addEventListener('DOMContentLoaded', () => {
         { 
             username: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // Admin
             password: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // Admin
-            redirectTo: 'index.html' 
+            redirectTo: '/' // Thay đổi từ 'index.html' thành '/'
         },
         { 
             username: 'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a', // Admin1
             password: 'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a', // Admin1
-            redirectTo: 'index1.html' 
+            redirectTo: '/' // Thay đổi từ 'index1.html' thành '/'
         },
         { 
             username: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', // LanAuKimLou123
             password: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08', // LanAuKimLou123
-            redirectTo: 'index.html' 
+            redirectTo: '/' // Thay đổi từ 'index.html' thành '/'
         }
     ];
 
@@ -230,89 +230,20 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 alert('Sai tài khoản và mật khẩu');
             }
-// Trong phần xử lý đăng nhập thành công
-} else if (user.password !== hashedPassword) {
-    alert('Nhập sai mật khẩu');
-} else {
-    const button = event.target.querySelector('button');
-    button.textContent = 'Đang tải...';
-    button.disabled = true;
+        } else if (user.password !== hashedPassword) {
+            alert('Nhập sai mật khẩu');
+        } else {
+            const button = event.target.querySelector('button');
+            const originalButtonText = button.textContent;
+            button.textContent = 'Đang tải...';
+            button.disabled = true;
 
-    setTimeout(() => {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', username);
-        localStorage.setItem('userHash', hashedUsername);
-        
-        // Chuyển hướng với đường dẫn đầy đủ
-        window.location.replace('https://vantritech.github.io/Shop/index.html');
-    }, 1500);
-}
-    });
-});
-// Hiển thị tên người dùng khi tải trang
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('login-form');
-
-    async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    const mockUsers = [
-        { 
-            username: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-            password: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-            displayName: 'Admin'
-        },
-        { 
-            username: 'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a',
-            password: 'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a',
-            displayName: 'Admin1'
-        },
-        { 
-            username: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
-            password: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
-            displayName: 'LanAuKimLou123'
-        }
-    ];
-
-    loginForm.addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const button = event.target.querySelector('button');
-
-        button.textContent = 'Đang xử lý...';
-        button.disabled = true;
-
-        try {
-            const hashedUsername = await sha256(username);
-            const hashedPassword = await sha256(password);
-            const user = mockUsers.find(u => u.username === hashedUsername);
-
-            if (!user || user.password !== hashedPassword) {
-                alert('Sai tài khoản hoặc mật khẩu');
-                button.textContent = 'Đăng nhập';
-                button.disabled = false;
-                return;
-            }
-
-            // Đăng nhập thành công
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('currentUser', user.displayName);
-            localStorage.setItem('userHash', hashedUsername);
-
-            // Chuyển hướng trang
-            window.location.href = 'https://vantritech.github.io/Shop/index.html';
-
-        } catch (error) {
-            console.error('Lỗi:', error);
-            alert('Có lỗi xảy ra, vui lòng thử lại');
-            button.textContent = 'Đăng nhập';
-            button.disabled = false;
+            setTimeout(() => {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', username);
+                // Chuyển hướng về URL gốc
+                window.location.href = '/Shop/';
+            }, 3000);
         }
     });
 });
