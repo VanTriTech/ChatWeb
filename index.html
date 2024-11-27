@@ -206,18 +206,25 @@
             }
         });
     </script>
-    <script>
-        // Kiểm tra đăng nhập một lần duy nhất
+<script>
+    // Kiểm tra đăng nhập
+    function checkLogin() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const userHash = localStorage.getItem('userHash');
+        const loginTime = localStorage.getItem('loginTime');
         
-        if (!isLoggedIn || !userHash || 
-            !['8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-              'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a',
-              '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'].includes(userHash)) {
-            window.location.replace('https://vantritech.github.io/Shop/login.html');
+        if (!isLoggedIn || !userHash || !loginTime) {
+            window.location.href = 'https://vantritech.github.io/Shop/login.html';
+            return false;
         }
-    </script>
+        return true;
+    }
+
+    // Chạy kiểm tra khi tải trang
+    if (!checkLogin()) {
+        window.location.href = 'https://vantritech.github.io/Shop/login.html';
+    }
+</script>
     <script src="script.js"></script>
     <script src="chat.js"></script>
 </body>
