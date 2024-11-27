@@ -251,29 +251,75 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Hiển thị tên người dùng khi tải trang
 document.addEventListener('DOMContentLoaded', function() {
-    const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-        document.getElementById('currentUsername').textContent = currentUser;
-    }
-    
-    // Xử lý đăng xuất
-    function handleLogout() {
-        if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-    }
-    
-    // Gán sự kiện cho nút đăng xuất
-    const logoutBtn = document.querySelector('.user-profile-mini i');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
-});
-// Thêm vào đầu file login.js
-document.addEventListener('DOMContentLoaded', function() {
-    // Nếu đã đăng nhập, không cho quay lại trang login
-    if (localStorage.getItem('isLoggedIn')) {
+    // Kiểm tra nếu đã đăng nhập thì chuyển hướng về index
+    if (localStorage.getItem('isLoggedIn') === 'true') {
         window.location.replace('https://vantritech.github.io/Shop/index.html');
+        return;
     }
+
+    const loginForm = document.getElementById('login-form');
+
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    const mockUsers = [
+        { 
+            username: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
+            password: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
+            displayName: 'Admin'
+        },
+        { 
+            username: 'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a',
+            password: 'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a',
+            displayName: 'Admin1'
+        },
+        { 
+            username: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            password: '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+            displayName: 'LanAuKimLou123'
+        }
+    ];
+
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        // Mã hóa input của người dùng
+        const hashedUsername = await sha256(username);
+        const hashedPassword = await sha256(password);
+
+        const user = mockUsers.find((u) => u.username === hashedUsername);
+        
+        if (!user) {
+            alert('Sai tài khoản hoặc mật khẩu');
+            return;
+        }
+
+        if (user.password !== hashedPassword) {
+            alert('Sai tài khoản hoặc mật khẩu');
+            return;
+        }
+
+        // Đăng nhập thành công
+        const button = event.target.querySelector('button');
+        button.textContent = 'Đang đăng nhập...';
+        button.disabled = true;
+
+        // Lưu thông tin đăng nhập
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', user.displayName);
+        localStorage.setItem('userHash', hashedUsername);
+
+        // Chuyển hướng sau 1.5 giây
+        setTimeout(() => {
+            window.location.replace('https://vantritech.github.io/Shop/index.html');
+        }, 1500);
+    });
 });
