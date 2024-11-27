@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileUsername = document.querySelector('.profile-username').textContent;
     const navItems = document.querySelectorAll('.nav-item');
     const contentSections = document.querySelectorAll('.content-section');
+
     
 
     let selectedMedia = [];
@@ -210,7 +211,21 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         });
     });
-// Thêm hàm xử lý video YouTube
+// Thêm đoạn code này vào phần đầu của file script.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Các biến và sự kiện hiện có...
+
+    // Thêm sự kiện cho nút YouTube
+    const youtubeBtn = document.getElementById('youtube-btn');
+    if (youtubeBtn) {
+        youtubeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addVideoFromLink();
+        });
+    }
+});
+
+// Hàm xử lý thêm video YouTube
 function addVideoFromLink() {
     const videoUrl = prompt('Nhập link video YouTube:');
     if (!videoUrl) return;
@@ -243,6 +258,9 @@ function extractYouTubeId(url) {
     // Update Media Preview
 // Cập nhật hàm updateMediaPreview để hỗ trợ video YouTube
 function updateMediaPreview() {
+    const mediaPreview = document.querySelector('.media-preview');
+    if (!mediaPreview) return;
+
     mediaPreview.innerHTML = selectedMedia.map((media, index) => {
         if (media.type === 'youtube') {
             return `
