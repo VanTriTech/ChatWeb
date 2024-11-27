@@ -1539,3 +1539,89 @@ function addLike2Animation(button) {
         thumbsUp.classList.remove('like-animation');
     }, 500);
 }
+// Thêm nút đăng video vào giao diện
+const uploadButtons = `
+    <div class="upload-buttons">
+        <button onclick="document.getElementById('media-input').click()">
+            <i class="fas fa-image"></i> Ảnh
+        </button>
+        <button onclick="addVideoByLink()">
+            <i class="fas fa-video"></i> Video
+        </button>
+    </div>
+`;
+
+// Hàm xử lý thêm video bằng link
+function addVideoByLink() {
+    const videoUrl = prompt('Nhập link video (YouTube hoặc direct link):');
+    if (!videoUrl) return;
+
+    // Kiểm tra nếu là link YouTube
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        const videoId = extractYouTubeId(videoUrl);
+        if (videoId) {
+            selectedMedia.push({
+                type: 'video',
+                source: 'youtube',
+                url: `https://www.youtube.com/embed/${videoId}`,
+                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`
+            });
+        }
+    } 
+    // Nếu là direct link video
+    else if (videoUrl.match(/\.(mp4|webm|ogg)$/i)) {
+        selectedMedia.push({
+            type: 'video',
+            source: 'direct',
+            url: videoUrl
+        });
+    }
+    else {
+        alert('Link video không hợp lệ. Vui lòng sử dụng link YouTube hoặc direct link video (mp4, webm, ogg)');
+        return;
+    }
+
+    updateMediaPreview();
+    updatePostButton();
+}
+
+// Hàm lấy YouTube ID từ link
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Cập nhật hàm hiển thị preview
+function updateMediaPreview() {
+    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
+        if (media.type === 'video') {
+            if (media.source === 'youtube') {
+                return `
+                    <div class="preview-item">
+                        <img src="${media.thumbnail}" alt="Video thumbnail">
+                        <div class="video-overlay">
+                            <i class="fab fa-youtube"></i>
+                        </div>
+                        <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="preview-item">
+                        <video src="${media.url}" controls></video>
+                        <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+                    </div>
+                `;
+            }
+        } else {
+            return `
+                <div class="preview-item">
+                    <img src="${media.url}" alt="Preview">
+                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+                </div>
+            `;
+        }
+    }).join('');
+    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+}
