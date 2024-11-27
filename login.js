@@ -251,10 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Hiển thị tên người dùng khi tải trang
 document.addEventListener('DOMContentLoaded', function() {
-    // Xóa toàn bộ storage khi vào trang login
-    localStorage.clear();
-    sessionStorage.clear();
-
     const loginForm = document.getElementById('login-form');
 
     async function sha256(message) {
@@ -305,11 +301,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Đăng nhập thành công
-            sessionStorage.setItem('isLoggedIn', 'true');
-            sessionStorage.setItem('currentUser', user.displayName);
-            
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', user.displayName);
+            localStorage.setItem('userHash', hashedUsername);
+
             // Chuyển hướng trang
-            window.top.location.href = 'https://vantritech.github.io/Shop/index.html';
+            window.location.href = 'https://vantritech.github.io/Shop/index.html';
 
         } catch (error) {
             console.error('Lỗi:', error);
