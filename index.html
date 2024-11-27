@@ -9,12 +9,6 @@
     <link rel="stylesheet" href="chat.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-    
-    <script>
-        if (!sessionStorage.getItem('isLoggedIn')) {
-            window.top.location.href = 'https://vantritech.github.io/Shop/login.html';
-        }
-    </script>
 <body>
     <div class="wrapper">
         <!-- Left Sidebar -->
@@ -54,17 +48,14 @@
                 <button class="tweet-btn">Đăng</button>
             </nav>
             <!-- User Profile Mini -->
-<!-- Sửa lại phần user-profile-mini -->
-<div class="user-profile-mini">
-    <img src="https://pbs.twimg.com/profile_images/1555161839084130305/qdiqtMRU_400x400.jpg" alt="Avatar">
-    <div class="user-info">
-        <span class="user-name" id="currentUsername"></span>
-        <span class="user-handle">✔ Được xác nhận</span>
-    </div>
-    <a href="https://vantritech.github.io/Shop/login.html" onclick="handleLogout(event)">
-        <i class="fas fa-sign-out-alt" title="Đăng xuất"></i>
-    </a>
-</div>
+            <div class="user-profile-mini">
+                <img src="https://pbs.twimg.com/profile_images/1555161839084130305/qdiqtMRU_400x400.jpg" alt="Avatar">
+                <div class="user-info">
+                    <span class="user-name">白リリ</span>
+                    <span class="user-handle">@Tennguoidung</span>
+                </div>
+                <i class="fas fa-ellipsis" onclick="handleLogout()"></i>
+            </div>
         </aside>
         <!-- Main Content -->
         <main class="main-content">
@@ -197,40 +188,6 @@
             window.location.href = "about:blank";
         }
     </script>
-        <script>
-        // Kiểm tra và sửa URL khi tải trang
-        if (window.location.pathname !== '/Shop/') {
-            const newUrl = window.location.origin + '/Shop/';
-            window.history.replaceState(null, '', newUrl);
-        }
-
-        // Lắng nghe sự kiện popstate (khi người dùng nhấn nút back/forward của trình duyệt)
-        window.addEventListener('popstate', function() {
-            if (window.location.pathname !== '/Shop/') {
-                const newUrl = window.location.origin + '/Shop/';
-                window.history.replaceState(null, '', newUrl);
-            }
-        });
-    </script>
-<script>
-    // Kiểm tra đăng nhập
-    function checkLogin() {
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        const userHash = localStorage.getItem('userHash');
-        const loginTime = localStorage.getItem('loginTime');
-        
-        if (!isLoggedIn || !userHash || !loginTime) {
-            window.location.href = 'https://vantritech.github.io/Shop/login.html';
-            return false;
-        }
-        return true;
-    }
-
-    // Chạy kiểm tra khi tải trang
-    if (!checkLogin()) {
-        window.location.href = 'https://vantritech.github.io/Shop/login.html';
-    }
-</script>
     <script src="script.js"></script>
     <script src="chat.js"></script>
 </body>
