@@ -266,6 +266,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add post to DOM
         addPostToDOM(post);
+        // Cập nhật tab Media nếu có ảnh
+    if (selectedMedia.length > 0) {
+        updateMediaTab(selectedMedia);
+    }
 
         // Save to localStorage
         savePost(post);
