@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const reader = new FileReader();
             reader.onload = function(e) {
+                
                 const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
                 selectedMedia.push({
                     type: mediaType,
@@ -213,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 // Thêm đoạn code này vào phần đầu của file script.js
 document.addEventListener('DOMContentLoaded', function() {
+
     // Các biến và sự kiện hiện có...
 
     // Thêm sự kiện cho nút YouTube
@@ -1531,3 +1533,138 @@ function addLike2Animation(button) {
         thumbsUp.classList.remove('like-animation');
     }, 500);
 }
+// Add to your existing DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    const videoUpload = document.getElementById('video-upload');
+    const uploadContainer = document.querySelector('.upload-container');
+    
+    // Drag and drop functionality
+    uploadContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadContainer.style.borderColor = '#1d9bf0';
+        uploadContainer.style.background = 'rgba(29, 155, 240, 0.1)';
+    });
+    
+    uploadContainer.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadContainer.style.borderColor = '#2f3336';
+        uploadContainer.style.background = 'transparent';
+    });
+    
+    uploadContainer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadContainer.style.borderColor = '#2f3336';
+        uploadContainer.style.background = 'transparent';
+        
+        const files = e.dataTransfer.files;
+        handleVideoUpload(files);
+    });
+    
+    videoUpload.addEventListener('change', (e) => {
+        handleVideoUpload(e.target.files);
+    });
+    
+    function handleVideoUpload(files) {
+        Array.from(files).forEach(file => {
+            if (!file.type.startsWith('video/')) {
+                alert('Vui lòng chỉ tải lên file video!');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const videoPost = {
+                    id: Date.now(),
+                    type: 'video',
+                    url: e.target.result,
+                    author: {
+                        name: document.querySelector('.profile-name').textContent,
+                        username: document.querySelector('.profile-username').textContent,
+                        avatar: document.querySelector('.profile-avatar img').src
+                    },
+                    timestamp: new Date().toISOString(),
+                    likes: 0,
+                    likes2: 0,
+                    comments: []
+                };
+                
+                saveVideoPost(videoPost);
+                addVideoToDOM(videoPost);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    function saveVideoPost(post) {
+        const mediaPosts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
+        mediaPosts.unshift(post);
+        localStorage.setItem('mediaPosts', JSON.stringify(mediaPosts));
+    }
+    
+    function addVideoToDOM(post) {
+        const mediaContainer = document.getElementById('media-posts-container');
+        const videoElement = document.createElement('div');
+        videoElement.className = 'video-post';
+        videoElement.setAttribute('data-post-id', post.id);
+        
+        videoElement.innerHTML = `
+            <div class="video-container">
+                <video controls>
+                    <source src="${post.url}" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-post-info">
+                <div class="post-header">
+                    <div class="post-info">
+                        <img src="${post.author.avatar}" alt="Avatar" class="post-avatar">
+                        <span class="post-name">${post.author.name}</span>
+                        <span class="post-username">${post.author.username}</span>
+                        <span class="post-time">${formatTime(post.timestamp)}</span>
+                    </div>
+                    <div class="post-menu">
+                        <button class="post-menu-button" onclick="togglePostMenu(${post.id})">
+                            <i class="fas fa-ellipsis"></i>
+                        </button>
+                        <div class="post-menu-dropdown" id="menu-${post.id}">
+                            <div class="post-menu-item delete" onclick="deletePost(${post.id})">
+                                <i class="fas fa-trash"></i>
+                                Xóa
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="video-post-actions">
+                <button class="action-button like-button" onclick="toggleLike(${post.id})">
+                    <i class="far fa-heart"></i>
+                    <span class="like-count">0</span>
+                </button>
+                <button class="action-button like2-button" onclick="toggleLike2(${post.id})">
+                    <i class="far fa-thumbs-up"></i>
+                    <span class="like2-count">0</span>
+                </button>
+                <button class="action-button comment-button" onclick="toggleComments(${post.id})">
+                    <i class="far fa-comment"></i>
+                    <span class="comment-count">0</span>
+                </button>
+            </div>
+            <div class="comments-section" id="comments-${post.id}">
+                <input type="text" class="comment-input" placeholder="Viết bình luận..."
+                       onkeypress="handleComment(event, ${post.id})">
+                <div class="comment-list"></div>
+            </div>
+        `;
+        
+        mediaContainer.insertBefore(videoElement, mediaContainer.firstChild);
+    }
+    
+    // Load existing media posts
+    function loadMediaPosts() {
+        const mediaPosts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
+        mediaPosts.forEach(post => addVideoToDOM(post));
+    }
+    
+    loadMediaPosts();
+});
