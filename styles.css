@@ -1478,3 +1478,58 @@ body {
     font-weight: 500;
     color: inherit;
 }
+/* Thêm style cho form nhập link video */
+.video-link-form {
+    margin-top: 8px;
+    padding: 8px;
+    background: #202327;
+    border-radius: 8px;
+}
+
+.video-link-form input {
+    width: 100%;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.video-link-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.video-link-actions button {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.video-link-actions button:first-child {
+    background: #1d9bf0;
+    color: #fff;
+}
+
+.video-link-actions button:last-child {
+    background: transparent;
+    color: #1d9bf0;
+    border: 1px solid #1d9bf0;
+}
+
+.video-link-btn {
+    background: none;
+    border: none;
+    color: #1d9bf0;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.video-link-btn:hover {
+    background: rgba(29, 155, 240, 0.1);
+}
