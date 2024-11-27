@@ -2,13 +2,6 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <script>
-        // Kiểm tra đăng nhập
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        if (!isLoggedIn || isLoggedIn !== 'true') {
-            window.location.href = 'https://vantritech.github.io/Shop/login.html';
-        }
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Chat</title>
@@ -214,7 +207,7 @@
         });
     </script>
     <script>
-        // Kiểm tra đăng nhập với hash
+        // Kiểm tra đăng nhập một lần duy nhất
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const userHash = localStorage.getItem('userHash');
         
@@ -223,11 +216,6 @@
               'e5d6dc87d0a3d4c0c374ec7f5c8b16d3e850e24dd1fbf0e5b81c3783a4bc7f7a',
               '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'].includes(userHash)) {
             window.location.replace('https://vantritech.github.io/Shop/login.html');
-        }
-    </script>        <script>
-        // Kiểm tra trạng thái đăng nhập
-        if (!localStorage.getItem('isLoggedIn')) {
-            window.location.href = 'login.html';
         }
     </script>
     <script src="script.js"></script>
