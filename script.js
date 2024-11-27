@@ -923,30 +923,26 @@ window.editComment = function(postId, commentId) {
 // Kiểm tra đăng nhập khi tải trang
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-        // Chưa đăng nhập, chuyển hướng về login.html
-        window.location.href = 'login.html';
+        // Chưa đăng nhập, chuyển hướng về login
+        window.location.href = '/Shop/login.html';
+        return;
+    }
+    
+    // Đã đăng nhập nhưng URL không đúng format
+    if (window.location.pathname !== '/Shop/' && 
+        window.location.pathname !== '/Shop/index.html') {
+        window.location.href = '/Shop/';
     }
 });
 
-// Xử lý đăng xuất
-function handleLogout(event) {
-    event.preventDefault();
-    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-        localStorage.clear();
-        window.location.href = 'login.html';
+// Sửa hàm handleLogout
+function handleLogout() {
+    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        window.location.href = '/Shop/login.html';
     }
 }
-
-// Gán sự kiện cho nút đăng xuất
-document.querySelector('.user-profile-mini i').addEventListener('click', handleLogout);
-
-// Hiển thị tên người dùng khi tải trang
-document.addEventListener('DOMContentLoaded', function() {
-    const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-        document.getElementById('currentUsername').textContent = currentUser;
-    }
-});
 // Thêm hàm xử lý reaction
 window.handleReaction = function(postId, commentId, reactionType) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -1478,54 +1474,3 @@ function addLike2Animation(button) {
         thumbsUp.classList.remove('like-animation');
     }, 500);
 }
-// Thay đổi phần chuyển hướng sau khi đăng nhập thành công
-setTimeout(() => {
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('currentUser', username);
-    
-    // Thay đổi nội dung trang thành index.html mà không thay đổi URL
-    fetch('index.html')
-        .then(response => response.text())
-        .then(html => {
-            document.documentElement.innerHTML = html;
-            // Chạy lại các script cần thiết
-            const scripts = document.getElementsByTagName('script');
-            for (let script of scripts) {
-                if (script.src) {
-                    const newScript = document.createElement('script');
-                    newScript.src = script.src;
-                    document.body.appendChild(newScript);
-                }
-            }
-        });
-}, 3000);
-<!-- Thay đổi tất cả các href trong navigation -->
-<a href="javascript:void(0)" onclick="loadPage('index.html')">Trang chủ</a>
-<a href="javascript:void(0)" onclick="loadPage('profile.html')">Hồ sơ</a>
-<!-- ... -->
-
-<!-- Thêm function loadPage vào script.js -->
-// Thêm function này vào script.js
-function loadPage(page) {
-    fetch(page)
-        .then(response => response.text())
-        .then(html => {
-            document.documentElement.innerHTML = html;
-            // Chạy lại các script
-            const scripts = document.getElementsByTagName('script');
-            for (let script of scripts) {
-                if (script.src) {
-                    const newScript = document.createElement('script');
-                    newScript.src = script.src;
-                    document.body.appendChild(newScript);
-                }
-            }
-        });
-}
-
-// Xử lý nút back của trình duyệt
-window.addEventListener('popstate', function(e) {
-    if (window.location.pathname !== '/Shop/') {
-        window.history.replaceState(null, '', '/Shop/');
-    }
-});
