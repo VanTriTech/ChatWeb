@@ -269,6 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Save to localStorage
         savePost(post);
+        // Cập nhật Media tab
+        updateMediaTab();
 
         // Reset form
         postInput.value = '';
@@ -278,7 +280,10 @@ document.addEventListener('DOMContentLoaded', function() {
         mediaPreview.innerHTML = '';
         mediaInput.value = '';
         updatePostButton();
+    } catch (error) {
+        console.error('Error creating post:', error);
     }
+}
 
 
     // Initialize Video Players
@@ -306,6 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
         menu.classList.toggle('active');
     }
 
+// Sửa lại hàm deletePost
 window.deletePost = function(postId) {
     if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -314,8 +320,6 @@ window.deletePost = function(postId) {
         if (postIndex !== -1) {
             // Xóa post khỏi mảng
             posts.splice(postIndex, 1);
-            
-            // Cập nhật localStorage
             localStorage.setItem('posts', JSON.stringify(posts));
             
             // Xóa post khỏi DOM
@@ -323,11 +327,9 @@ window.deletePost = function(postId) {
             if (postElement) {
                 postElement.remove();
             }
-          // Cập nhật lại tab Media
-            updateMediaTab();
             
-            // Thông báo xóa thành công (tùy chọn)
-            console.log('Đã xóa bài viết thành công');
+            // Cập nhật Media tab
+            updateMediaTab();
         }
     }
 };
@@ -936,16 +938,33 @@ window.editComment = function(postId, commentId) {
         });
     }
 };
-// Kiểm tra đăng nhập và URL khi tải trang
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
-        // Chưa đăng nhập, chuyển về trang login
-        window.location.replace('https://vantritech.github.io/Shop/login.html');
-        return;
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const contentSections = document.querySelectorAll('.content-section');
     
-    // Kiểm tra và sửa URL nếu cần
-    normalizeURL();
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetTab = this.dataset.tab;
+            
+            // Update active states
+            navItems.forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show corresponding section
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === `${targetTab}-section`) {
+                    section.classList.add('active');
+                    
+                    // Cập nhật tab Media khi chuyển sang
+                    if (targetTab === 'media') {
+                        updateMediaTab();
+                    }
+                }
+            });
+        });
+    });
 });
 
 // Sửa hàm handleLogout
@@ -1420,20 +1439,18 @@ window.editPost = function(postId) {
         textarea.focus();
         
         // Xử lý nút Lưu
-        editForm.querySelector('.save-edit').addEventListener('click', function() {
-            const newContent = textarea.value.trim();
-            post.content = newContent;
-            localStorage.setItem('posts', JSON.stringify(posts));
-            
-            // Cập nhật UI
-            editForm.replaceWith(createPostText(newContent));
-        });
+    // Trong phần xử lý nút Lưu
+    editForm.querySelector('.save-edit').addEventListener('click', function() {
+        const newContent = textarea.value.trim();
+        post.content = newContent;
+        localStorage.setItem('posts', JSON.stringify(posts));
         
-        // Xử lý nút Hủy
-        editForm.querySelector('.cancel-edit').addEventListener('click', function() {
-            editForm.replaceWith(createPostText(currentContent));
-        });
-    }
+        // Cập nhật UI
+        editForm.replaceWith(createPostText(newContent));
+        
+        // Cập nhật Media tab
+        updateMediaTab();
+    });
 };
 
 // Hàm tạo element post text
