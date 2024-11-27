@@ -1653,3 +1653,15 @@ body {
     border-radius: 16px;
     margin-bottom: 20px;
 }
+.post-video {
+    margin: 12px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+}
+
+.post-video video {
+    width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+}
