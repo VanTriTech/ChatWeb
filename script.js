@@ -1479,18 +1479,22 @@ function updateMediaTab() {
     
     // Lọc các bài đăng có chứa "@LanYouJin" và có media
     const allMedia = posts.reduce((acc, post) => {
+        // Kiểm tra nội dung post có chứa @LanYouJin (không phân biệt hoa thường)
         if (
-            post.media && 
-            post.media.length && 
             post.content && 
-            post.content.includes("@LanYouJin")
+            post.content.toLowerCase().includes("@lanyoujin") &&
+            post.media && 
+            post.media.length > 0
         ) {
-            acc.push(...post.media.map(media => ({
+            // Thêm thông tin post vào mỗi media item
+            const mediaWithPostInfo = post.media.map(media => ({
                 ...media,
                 postId: post.id,
                 timestamp: post.timestamp,
-                content: post.content // Thêm nội dung để có thể hiển thị caption nếu cần
-            })));
+                content: post.content,
+                author: post.author
+            }));
+            acc.push(...mediaWithPostInfo);
         }
         return acc;
     }, []);
@@ -1504,32 +1508,34 @@ function updateMediaTab() {
     
     // Tạo HTML cho từng media item
     const mediaHTML = allMedia.map(media => {
+        const mediaOverlay = `
+            <div class="media-overlay">
+                <span class="media-tag">@LanYouJin</span>
+                <span class="media-author">by ${media.author.name}</span>
+            </div>
+        `;
+
         if (media.type === 'image') {
             const imageData = encodeURIComponent(JSON.stringify([media]));
             return `
                 <div class="image-container" onclick="openImageModal('${media.url}', 0, '${imageData}')">
                     <img src="${media.url}" alt="Media content">
-                    <div class="media-overlay">
-                        <span class="media-tag">@LanYouJin</span>
-                    </div>
+                    ${mediaOverlay}
                 </div>
             `;
         } else if (media.type === 'video') {
             return `
                 <div class="video-container">
                     <video src="${media.url}" controls></video>
-                    <div class="media-overlay">
-                        <span class="media-tag">@LanYouJin</span>
-                    </div>
+                    ${mediaOverlay}
                 </div>
             `;
         }
         return '';
     }).join('');
     
-  mediaGrid.innerHTML = mediaHTML;
+    mediaGrid.innerHTML = mediaHTML;
     
-    // Xóa nội dung cũ và thêm grid mới
     // Xóa nội dung cũ và thêm grid mới
     mediaSection.innerHTML = '';
     if (allMedia.length > 0) {
