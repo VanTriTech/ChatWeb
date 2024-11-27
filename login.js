@@ -250,15 +250,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 // Hiển thị tên người dùng khi tải trang
-document.addEventListener('DOMContentLoaded', function() {
-    // Kiểm tra đăng nhập ngay lập tức
-    if (localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('userHash')) {
+document.addEventListener('DOMContentLoaded', async function() {
+    const loginForm = document.getElementById('login-form');
+
+    // Kiểm tra nếu đã đăng nhập
+    if (localStorage.getItem('isLoggedIn') === 'true') {
         window.location.href = 'https://vantritech.github.io/Shop/index.html';
         return;
     }
 
-    const loginForm = document.getElementById('login-form');
-    if (!loginForm) return; // Tránh lỗi nếu không tìm thấy form
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
 
     const mockUsers = [
         { 
@@ -278,60 +285,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
 
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const submitButton = event.target.querySelector('button');
-
-        if (!usernameInput || !passwordInput) return;
-
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        if (!username || !password) {
-            alert('Vui lòng nhập đầy đủ thông tin');
-            return;
-        }
-
-        submitButton.textContent = 'Đang xử lý...';
-        submitButton.disabled = true;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const button = event.target.querySelector('button');
 
         try {
             const hashedUsername = await sha256(username);
             const hashedPassword = await sha256(password);
             const user = mockUsers.find(u => u.username === hashedUsername);
 
-            if (!user || user.password !== hashedPassword) {
+            if (!user) {
                 alert('Sai tài khoản hoặc mật khẩu');
-                submitButton.textContent = 'Đăng nhập';
-                submitButton.disabled = false;
+                return;
+            }
+
+            if (user.password !== hashedPassword) {
+                alert('Sai tài khoản hoặc mật khẩu');
                 return;
             }
 
             // Đăng nhập thành công
+            button.textContent = 'Đang đăng nhập...';
+            button.disabled = true;
+
+            // Lưu thông tin đăng nhập
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('currentUser', user.displayName);
             localStorage.setItem('userHash', hashedUsername);
 
-            submitButton.textContent = 'Đăng nhập thành công!';
-            
             // Chuyển hướng
             window.location.href = 'https://vantritech.github.io/Shop/index.html';
 
         } catch (error) {
-            console.error('Lỗi đăng nhập:', error);
+            console.error('Lỗi:', error);
             alert('Có lỗi xảy ra, vui lòng thử lại');
-            submitButton.textContent = 'Đăng nhập';
-            submitButton.disabled = false;
+            button.textContent = 'Đăng nhập';
+            button.disabled = false;
         }
     });
 });
