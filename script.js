@@ -1477,12 +1477,12 @@ function updateMediaTab() {
     const mediaSection = document.getElementById('media-section');
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
-    // Lọc các bài đăng có chứa "@LanYouJin" và có media
+    // Lọc các bài đăng có chứa "@LanYouJin" trong nội dung chính của post (không tính comments)
     const allMedia = posts.reduce((acc, post) => {
-        // Kiểm tra nội dung post có chứa @LanYouJin (không phân biệt hoa thường)
+        // Kiểm tra nội dung chính của post có chứa @LanYouJin
+        const postContent = post.content || '';
         if (
-            post.content && 
-            post.content.toLowerCase().includes("@lanyoujin") &&
+            postContent.toLowerCase().includes("@lanyoujin") &&
             post.media && 
             post.media.length > 0
         ) {
@@ -1541,6 +1541,6 @@ function updateMediaTab() {
     if (allMedia.length > 0) {
         mediaSection.appendChild(mediaGrid);
     } else {
-        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media!</div>';
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
