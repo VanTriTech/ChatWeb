@@ -251,21 +251,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // Hiển thị tên người dùng khi tải trang
 document.addEventListener('DOMContentLoaded', function() {
-    // Kiểm tra nếu đã đăng nhập thì chuyển hướng về index
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        window.location.replace('https://vantritech.github.io/Shop/index.html');
+    // Kiểm tra đăng nhập ngay lập tức
+    if (localStorage.getItem('isLoggedIn') === 'true' && localStorage.getItem('userHash')) {
+        window.location.href = 'https://vantritech.github.io/Shop/index.html';
         return;
     }
 
     const loginForm = document.getElementById('login-form');
-
-    async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
+    if (!loginForm) return; // Tránh lỗi nếu không tìm thấy form
 
     const mockUsers = [
         { 
@@ -285,41 +278,60 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    loginForm.addEventListener('submit', async (event) => {
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
 
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const submitButton = event.target.querySelector('button');
 
-        // Mã hóa input của người dùng
-        const hashedUsername = await sha256(username);
-        const hashedPassword = await sha256(password);
+        if (!usernameInput || !passwordInput) return;
 
-        const user = mockUsers.find((u) => u.username === hashedUsername);
-        
-        if (!user) {
-            alert('Sai tài khoản hoặc mật khẩu');
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            alert('Vui lòng nhập đầy đủ thông tin');
             return;
         }
 
-        if (user.password !== hashedPassword) {
-            alert('Sai tài khoản hoặc mật khẩu');
-            return;
+        submitButton.textContent = 'Đang xử lý...';
+        submitButton.disabled = true;
+
+        try {
+            const hashedUsername = await sha256(username);
+            const hashedPassword = await sha256(password);
+            const user = mockUsers.find(u => u.username === hashedUsername);
+
+            if (!user || user.password !== hashedPassword) {
+                alert('Sai tài khoản hoặc mật khẩu');
+                submitButton.textContent = 'Đăng nhập';
+                submitButton.disabled = false;
+                return;
+            }
+
+            // Đăng nhập thành công
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', user.displayName);
+            localStorage.setItem('userHash', hashedUsername);
+
+            submitButton.textContent = 'Đăng nhập thành công!';
+            
+            // Chuyển hướng
+            window.location.href = 'https://vantritech.github.io/Shop/index.html';
+
+        } catch (error) {
+            console.error('Lỗi đăng nhập:', error);
+            alert('Có lỗi xảy ra, vui lòng thử lại');
+            submitButton.textContent = 'Đăng nhập';
+            submitButton.disabled = false;
         }
-
-        // Đăng nhập thành công
-        const button = event.target.querySelector('button');
-        button.textContent = 'Đang đăng nhập...';
-        button.disabled = true;
-
-        // Lưu thông tin đăng nhập
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', user.displayName);
-        localStorage.setItem('userHash', hashedUsername);
-
-        // Chuyển hướng sau 1.5 giây
-        setTimeout(() => {
-            window.location.replace('https://vantritech.github.io/Shop/index.html');
-        }, 1500);
     });
 });
