@@ -3,16 +3,12 @@
 <html lang="vi">
 <head>
     <script>
-        // Kiểm tra và chuyển hướng ngay lập tức
-        (function() {
-            if (!localStorage.getItem('isLoggedIn')) {
-                window.location.replace('https://vantritech.github.io/Shop/login.html');
-                throw new Error("Unauthorized access"); // Ngăn chặn việc tải tiếp trang
-            }
-        })();
+        // Kiểm tra đăng nhập
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+            window.location.href = 'https://vantritech.github.io/Shop/login.html';
+        }
     </script>
-    <!-- Thêm meta refresh để đảm bảo chuyển hướng -->
-    <meta http-equiv="refresh" content="0;url=https://vantritech.github.io/Shop/login.html">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Chat</title>
