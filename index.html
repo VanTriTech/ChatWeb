@@ -136,11 +136,20 @@
         </div>
     </div>
 
-    <div id="media-section" class="content-section">
-        <div class="empty-state">
-            <p>Chưa có Media!</p>
+<div id="media-section" class="content-section">
+    <div class="media-upload-form">
+        <div class="upload-container">
+            <label for="video-upload" class="upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Kéo thả video hoặc click để tải lên</span>
+            </label>
+            <input type="file" id="video-upload" accept="video/*" hidden>
         </div>
     </div>
+    <div class="media-grid" id="media-posts-container">
+        <!-- Video posts will be displayed here -->
+    </div>
+</div>
 </div>
         </main>
 
