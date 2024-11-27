@@ -1477,13 +1477,19 @@ function updateMediaTab() {
     const mediaSection = document.getElementById('media-section');
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
-    // Lọc tất cả media từ các bài đăng
+    // Lọc các bài đăng có chứa "@LanYouJin" và có media
     const allMedia = posts.reduce((acc, post) => {
-        if (post.media && post.media.length) {
+        if (
+            post.media && 
+            post.media.length && 
+            post.content && 
+            post.content.includes("@LanYouJin")
+        ) {
             acc.push(...post.media.map(media => ({
                 ...media,
                 postId: post.id,
-                timestamp: post.timestamp
+                timestamp: post.timestamp,
+                content: post.content // Thêm nội dung để có thể hiển thị caption nếu cần
             })));
         }
         return acc;
@@ -1503,25 +1509,32 @@ function updateMediaTab() {
             return `
                 <div class="image-container" onclick="openImageModal('${media.url}', 0, '${imageData}')">
                     <img src="${media.url}" alt="Media content">
+                    <div class="media-overlay">
+                        <span class="media-tag">@LanYouJin</span>
+                    </div>
                 </div>
             `;
         } else if (media.type === 'video') {
             return `
                 <div class="video-container">
                     <video src="${media.url}" controls></video>
+                    <div class="media-overlay">
+                        <span class="media-tag">@LanYouJin</span>
+                    </div>
                 </div>
             `;
         }
         return '';
     }).join('');
     
-    mediaGrid.innerHTML = mediaHTML;
+  mediaGrid.innerHTML = mediaHTML;
     
+    // Xóa nội dung cũ và thêm grid mới
     // Xóa nội dung cũ và thêm grid mới
     mediaSection.innerHTML = '';
     if (allMedia.length > 0) {
         mediaSection.appendChild(mediaGrid);
     } else {
-        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media!</div>';
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
