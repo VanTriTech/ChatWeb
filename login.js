@@ -247,3 +247,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+// Hiển thị tên người dùng khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        document.getElementById('currentUsername').textContent = currentUser;
+    }
+    
+    // Xử lý đăng xuất
+    function handleLogout() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    }
+    
+    // Gán sự kiện cho nút đăng xuất
+    const logoutBtn = document.querySelector('.user-profile-mini i');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+});
