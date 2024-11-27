@@ -928,27 +928,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Hàm xử lý đăng xuất
 function handleLogout() {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('currentUser');
+        // Xóa dữ liệu đăng nhập
+        localStorage.clear();
+        // Chuyển hướng về trang login
+        window.location.replace('login.html');
         
-        // Chuyển về trang login mà không đổi URL
-        fetch('login.html')
-            .then(response => response.text())
-            .then(html => {
-                document.documentElement.innerHTML = html;
-                const scripts = document.getElementsByTagName('script');
-                for (let script of scripts) {
-                    if (script.src) {
-                        const newScript = document.createElement('script');
-                        newScript.src = script.src;
-                        document.body.appendChild(newScript);
-                    }
-                }
-            });
+        // Đảm bảo URL vẫn giữ nguyên sau khi chuyển trang
+        setTimeout(() => {
+            if (window.location.pathname !== '/Shop/') {
+                const newUrl = window.location.origin + '/Shop/';
+                window.history.replaceState(null, '', newUrl);
+            }
+        }, 100);
     }
 }
+// Kiểm tra trạng thái đăng nhập khi tải trang
+document.addEventListener('DOMContentLoaded', () => {
+    if (!localStorage.getItem('isLoggedIn')) {
+        window.location.replace('login.html');
+        
+        // Đảm bảo URL vẫn giữ nguyên sau khi chuyển trang
+        setTimeout(() => {
+            if (window.location.pathname !== '/Shop/') {
+                const newUrl = window.location.origin + '/Shop/';
+                window.history.replaceState(null, '', newUrl);
+            }
+        }, 100);
+    }
+});
 // Thêm hàm xử lý reaction
 window.handleReaction = function(postId, commentId, reactionType) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
