@@ -157,7 +157,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const contentSections = document.querySelectorAll('.content-section');
     
 
-    let selectedMedia = [];
+let selectedMedia = [];
+const mediaPreview = document.querySelector('.media-preview');
 
     // Navigation Tabs
     navItems.forEach(item => {
@@ -1485,14 +1486,38 @@ function addLike2Animation(button) {
 }
 // Thêm các hàm xử lý video link
 function showVideoLinkInput() {
-    document.getElementById('video-link-form').style.display = 'block';
+    const videoLinkForm = document.getElementById('video-link-form');
+    if (!videoLinkForm) {
+        // Tạo form nếu chưa tồn tại
+        const form = document.createElement('div');
+        form.id = 'video-link-form';
+        form.className = 'video-link-form';
+        form.innerHTML = `
+            <input type="text" id="video-link-input" placeholder="Nhập link YouTube...">
+            <div class="video-link-actions">
+                <button onclick="addVideoFromLink()">Thêm</button>
+                <button onclick="hideVideoLinkInput()">Hủy</button>
+            </div>
+        `;
+        
+        // Thêm form vào sau post-actions
+        const postActions = document.querySelector('.post-actions');
+        postActions.parentNode.insertBefore(form, postActions.nextSibling);
+    } else {
+        videoLinkForm.style.display = 'block';
+    }
 }
 
+// Hàm ẩn form nhập link
 function hideVideoLinkInput() {
-    document.getElementById('video-link-form').style.display = 'none';
-    document.getElementById('video-link-input').value = '';
+    const videoLinkForm = document.getElementById('video-link-form');
+    if (videoLinkForm) {
+        videoLinkForm.style.display = 'none';
+        document.getElementById('video-link-input').value = '';
+    }
 }
 
+// Hàm xử lý thêm video từ link
 function addVideoFromLink() {
     const linkInput = document.getElementById('video-link-input');
     const videoUrl = linkInput.value.trim();
@@ -1504,19 +1529,64 @@ function addVideoFromLink() {
         selectedMedia.push({
             type: 'youtube',
             url: `https://www.youtube.com/embed/${videoId}`,
-            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+            videoId: videoId
         });
         
         updateMediaPreview();
         updatePostButton();
         hideVideoLinkInput();
     } else {
-        alert('Link YouTube không hợp lệ!');
+        alert('Link YouTube không hợp lệ! Vui lòng kiểm tra lại.');
     }
 }
 
+// Hàm trích xuất ID video từ URL YouTube
 function extractYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return (match && match[7].length === 11) ? match[7] : null;
+}
+
+// Hàm cập nhật preview media
+function updateMediaPreview() {
+    if (!mediaPreview) return;
+    
+    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
+        if (media.type === 'youtube') {
+            return `
+                <div class="preview-item youtube-preview">
+                    <img src="${media.thumbnail}" alt="YouTube Thumbnail">
+                    <i class="fab fa-youtube youtube-icon"></i>
+                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+                </div>
+            `;
+        }
+        return `
+            <div class="preview-item">
+                ${media.type === 'image' 
+                    ? `<img src="${media.url}" alt="Preview">`
+                    : `<video src="${media.url}" controls></video>`
+                }
+                <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+            </div>
+        `;
+    }).join('');
+    
+    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+}
+// Hàm xóa media
+function removeMedia(index) {
+    selectedMedia.splice(index, 1);
+    updateMediaPreview();
+    updatePostButton();
+}
+
+// Hàm cập nhật trạng thái nút đăng
+function updatePostButton() {
+    const postButton = document.getElementById('post-button');
+    const postInput = document.getElementById('post-input');
+    if (postButton) {
+        postButton.disabled = !postInput.value.trim() && selectedMedia.length === 0;
+    }
 }
