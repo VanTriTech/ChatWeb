@@ -155,16 +155,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileUsername = document.querySelector('.profile-username').textContent;
     const navItems = document.querySelectorAll('.nav-item');
     const contentSections = document.querySelectorAll('.content-section');
-    // Media section elements
-    const mediaPostInput = document.getElementById('media-post-input');
-    const mediaPostButton = document.getElementById('media-post-button');
-    const videoInput = document.getElementById('video-input');
-    const mediaPostsContainer = document.getElementById('media-posts-container');
 
     
 
     let selectedMedia = [];
-    let selectedVideo = null;
 
     // Navigation Tabs
     navItems.forEach(item => {
@@ -1714,162 +1708,60 @@ function updateLoadingProgress(loadingElement, progress) {
     
     loadMediaPosts();
 });
-    // Auto resize textarea
-    mediaPostInput.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
-        updateMediaPostButton();
-    });
+// Thêm vào cuối file script.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra xem đang ở tab Media không
+    const mediaSection = document.getElementById('media-section');
+    if (!mediaSection) return;
 
-    // Video Upload Handler
-    videoInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.size > 100 * 1024 * 1024) { // 100MB limit
-                alert('File quá lớn. Vui lòng chọn video nhỏ hơn 100MB.');
-                return;
-            }
+    // Sửa đổi xử lý media input trong tab Media
+    const mediaInput = document.getElementById('media-input');
+    if (mediaInput) {
+        mediaInput.setAttribute('accept', 'video/*');
+        mediaInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (!file.type.startsWith('video/')) {
+                    alert('Vui lòng chỉ tải lên file video trong tab Media');
+                    return;
+                }
 
-            if (!file.type.startsWith('video/')) {
-                alert('Vui lòng chỉ chọn file video.');
-                return;
-            }
-
-            selectedVideo = file;
-            updateMediaPostButton();
-        }
-    });
-
-    // Update Post Button State
-    function updateMediaPostButton() {
-        mediaPostButton.disabled = !mediaPostInput.value.trim() && !selectedVideo;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedMedia.push({
+                        type: 'video',
+                        url: e.target.result,
+                        file: file
+                    });
+                    updateMediaPreview();
+                    updatePostButton();
+                }
+                reader.readAsDataURL(file);
+            });
+        });
     }
 
-    // Create New Media Post
-    mediaPostButton.addEventListener('click', createMediaPost);
-
-    async function createMediaPost() {
-        if (!selectedVideo && !mediaPostInput.value.trim()) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const post = {
-                id: Date.now(),
-                content: mediaPostInput.value.trim(),
-                author: {
-                    name: document.querySelector('.profile-name').textContent,
-                    username: document.querySelector('.profile-username').textContent,
-                    avatar: document.querySelector('.profile-avatar img').src
-                },
-                video: e.target.result,
-                reactions: {
-                    likes: 0,
-                    hearts: 0,
-                    angry: 0
-                },
-                userReactions: {},
-                comments: [],
-                timestamp: new Date().toISOString()
-            };
-
-            // Add post to DOM
-            addMediaPostToDOM(post);
-
-            // Save to localStorage
-            saveMediaPost(post);
-
-            // Reset form
-            mediaPostInput.value = '';
-            mediaPostInput.style.height = 'auto';
-            selectedVideo = null;
-            videoInput.value = '';
-            updateMediaPostButton();
-        };
-
-        if (selectedVideo) {
-            reader.readAsDataURL(selectedVideo);
-        }
-    }
-
-    function addMediaPostToDOM(post) {
-        const postElement = document.createElement('div');
-        postElement.className = 'post';
-        postElement.setAttribute('data-post-id', post.id);
+    // Cập nhật hàm updateMediaPreview để xử lý video
+    const originalUpdateMediaPreview = window.updateMediaPreview;
+    window.updateMediaPreview = function() {
+        if (!mediaPreview) return;
         
-        postElement.innerHTML = `
-            <img src="${post.author.avatar}" alt="Avatar" class="post-avatar">
-            <div class="post-content">
-                <div class="post-header">
-                    <div class="post-info">
-                        <span class="post-name">${post.author.name}</span>
-                        <span class="post-username">${post.author.username}</span>
-                        <span class="post-time">${formatTime(post.timestamp)}</span>
+        mediaPreview.innerHTML = selectedMedia.map((media, index) => {
+            if (media.type === 'video') {
+                return `
+                    <div class="preview-item">
+                        <video src="${media.url}" controls></video>
+                        <button class="remove-preview" onclick="removeMedia(${index})">×</button>
                     </div>
-                    <div class="post-menu">
-                        <button class="post-menu-button" onclick="togglePostMenu(${post.id})">
-                            <i class="fas fa-ellipsis"></i>
-                        </button>
-                        <div class="post-menu-dropdown" id="menu-${post.id}">
-                            <div class="post-menu-item delete" onclick="deleteMediaPost(${post.id})">
-                                <i class="fas fa-trash"></i>
-                                Xóa
-                            </div>
-                        </div>
-                    </div>
+                `;
+            }
+            return `
+                <div class="preview-item">
+                    <img src="${media.url}" alt="Preview">
+                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
                 </div>
-                ${post.content ? `<p class="post-text">${post.content}</p>` : ''}
-                <div class="post-video">
-                    <video controls>
-                        <source src="${post.video}" type="video/mp4">
-                    </video>
-                </div>
-                <div class="post-actions">
-                    <button class="action-button like-button" onclick="toggleLike(${post.id})">
-                        <i class="far fa-heart"></i>
-                        <span class="like-count">0</span>
-                    </button>
-                    <button class="action-button like2-button" onclick="toggleLike2(${post.id})">
-                        <i class="far fa-thumbs-up"></i>
-                        <span class="like2-count">0</span>
-                    </button>
-                    <button class="action-button comment-button" onclick="toggleComments(${post.id})">
-                        <i class="far fa-comment"></i>
-                    </button>
-                </div>
-                <div class="comments-section" id="comments-${post.id}">
-                    <input type="text" class="comment-input" placeholder="Viết bình luận..."
-                           onkeypress="handleComment(event, ${post.id})">
-                    <div class="comment-list"></div>
-                </div>
-            </div>
-        `;
-
-        mediaPostsContainer.insertBefore(postElement, mediaPostsContainer.firstChild);
-    }
-
-    // Load existing media posts
-    function loadMediaPosts() {
-        const posts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
-        posts.forEach(post => addMediaPostToDOM(post));
-    }
-
-    loadMediaPosts();
+            `;
+        }).join('');
+        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+    };
 });
-
-// Add these functions outside the DOMContentLoaded event
-function saveMediaPost(post) {
-    const posts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
-    posts.unshift(post);
-    localStorage.setItem('mediaPosts', JSON.stringify(posts));
-}
-
-function deleteMediaPost(postId) {
-    if (confirm('Bạn có chắc muốn xóa bài đăng này?')) {
-        const posts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
-        const updatedPosts = posts.filter(p => p.id !== postId);
-        localStorage.setItem('mediaPosts', JSON.stringify(updatedPosts));
-        
-        const post = document.querySelector(`[data-post-id="${postId}"]`);
-        post.remove();
-    }
-}
