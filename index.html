@@ -103,19 +103,32 @@
     <div id="posts-section" class="content-section active">
         <div class="post-form">
             <img src="https://scontent.fsgn5-3.fna.fbcdn.net/v/t39.30808-6/370359771_314608017596982_7845257365469445897_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=443oe_Nuqn4Q7kNvgHqCzvm&_nc_zt=23&_nc_ht=scontent.fsgn5-3.fna&_nc_gid=AdNB7lsC6IcVxOYuqbcuT0F&oh=00_AYAs2Hn6MLg4NIWmiy1EXdNl6iYyxIrtULrBnsKe8Yw40w&oe=674CA725" alt="Avatar" class="post-avatar">
-            <div class="post-input-wrapper">
-                <textarea id="post-input" placeholder="兰幼金, bạn đang nghĩ gì?"></textarea>
-                <div class="post-actions">
-                    <div class="media-upload">
-                        <label for="media-input">
-                            <i class="far fa-image"></i>
-                        </label>
-                        <input type="file" id="media-input" accept="image/*,video/*" multiple hidden>
-                    </div>
-                    <button id="post-button" disabled>Đăng</button>
-                </div>
+<div class="post-input-wrapper">
+    <textarea id="post-input" placeholder="兰幼金, bạn đang nghĩ gì?"></textarea>
+    <div class="media-preview"></div>
+    <div class="post-actions">
+        <div class="upload-buttons">
+            <div class="media-upload">
+                <label for="media-input">
+                    <i class="far fa-image"></i>
+                </label>
+                <input type="file" id="media-input" accept="image/*,video/*" multiple hidden>
             </div>
+            <button class="video-link-btn" onclick="showVideoLinkInput()">
+                <i class="fab fa-youtube"></i>
+            </button>
         </div>
+        <button id="post-button" disabled>Đăng</button>
+    </div>
+    <!-- Thêm form nhập link video -->
+    <div id="video-link-form" class="video-link-form" style="display: none;">
+        <input type="text" id="video-link-input" placeholder="Nhập link YouTube...">
+        <div class="video-link-actions">
+            <button onclick="addVideoFromLink()">Thêm</button>
+            <button onclick="hideVideoLinkInput()">Hủy</button>
+        </div>
+    </div>
+</div>
         <div id="posts-container" class="posts-container"></div>
     </div>
 
