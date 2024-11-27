@@ -1493,3 +1493,27 @@ setTimeout(() => {
 <!-- ... -->
 
 <!-- Thêm function loadPage vào script.js -->
+// Thêm function này vào script.js
+function loadPage(page) {
+    fetch(page)
+        .then(response => response.text())
+        .then(html => {
+            document.documentElement.innerHTML = html;
+            // Chạy lại các script
+            const scripts = document.getElementsByTagName('script');
+            for (let script of scripts) {
+                if (script.src) {
+                    const newScript = document.createElement('script');
+                    newScript.src = script.src;
+                    document.body.appendChild(newScript);
+                }
+            }
+        });
+}
+
+// Xử lý nút back của trình duyệt
+window.addEventListener('popstate', function(e) {
+    if (window.location.pathname !== '/Shop/') {
+        window.history.replaceState(null, '', '/Shop/');
+    }
+});
