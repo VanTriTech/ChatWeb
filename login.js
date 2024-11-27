@@ -250,15 +250,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 // Hiển thị tên người dùng khi tải trang
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Xóa toàn bộ storage khi vào trang login
+    localStorage.clear();
+    sessionStorage.clear();
+
     const loginForm = document.getElementById('login-form');
 
     async function sha256(message) {
         const msgBuffer = new TextEncoder().encode(message);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
     const mockUsers = [
@@ -286,6 +289,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         const password = document.getElementById('password').value.trim();
         const button = event.target.querySelector('button');
 
+        button.textContent = 'Đang xử lý...';
+        button.disabled = true;
+
         try {
             const hashedUsername = await sha256(username);
             const hashedPassword = await sha256(password);
@@ -293,19 +299,17 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             if (!user || user.password !== hashedPassword) {
                 alert('Sai tài khoản hoặc mật khẩu');
+                button.textContent = 'Đăng nhập';
+                button.disabled = false;
                 return;
             }
 
-            button.textContent = 'Đang đăng nhập...';
-            button.disabled = true;
-
-            // Lưu session mới
+            // Đăng nhập thành công
             sessionStorage.setItem('isLoggedIn', 'true');
             sessionStorage.setItem('currentUser', user.displayName);
-            sessionStorage.setItem('userHash', hashedUsername);
             
-            // Chuyển hướng
-            window.location.replace('https://vantritech.github.io/Shop/index.html');
+            // Chuyển hướng trang
+            window.top.location.href = 'https://vantritech.github.io/Shop/index.html';
 
         } catch (error) {
             console.error('Lỗi:', error);
