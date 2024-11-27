@@ -212,8 +212,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Update Media Preview
-    function updateMediaPreview() {
-        mediaPreview.innerHTML = selectedMedia.map((media, index) => `
+// Cập nhật hàm updateMediaPreview để hỗ trợ video YouTube
+function updateMediaPreview() {
+    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
+        if (media.type === 'youtube') {
+            return `
+                <div class="preview-item">
+                    <img src="${media.thumbnail}" alt="YouTube Thumbnail">
+                    <i class="fab fa-youtube youtube-icon"></i>
+                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+                </div>
+            `;
+        }
+        return `
             <div class="preview-item">
                 ${media.type === 'image' 
                     ? `<img src="${media.url}" alt="Preview">`
@@ -221,9 +232,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 <button class="remove-preview" onclick="removeMedia(${index})">×</button>
             </div>
-        `).join('');
-        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-    }
+        `;
+    }).join('');
+    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+}
 
     // Remove Media
     window.removeMedia = function(index) {
@@ -1470,4 +1482,41 @@ function addLike2Animation(button) {
     setTimeout(() => {
         thumbsUp.classList.remove('like-animation');
     }, 500);
+}
+// Thêm các hàm xử lý video link
+function showVideoLinkInput() {
+    document.getElementById('video-link-form').style.display = 'block';
+}
+
+function hideVideoLinkInput() {
+    document.getElementById('video-link-form').style.display = 'none';
+    document.getElementById('video-link-input').value = '';
+}
+
+function addVideoFromLink() {
+    const linkInput = document.getElementById('video-link-input');
+    const videoUrl = linkInput.value.trim();
+    
+    // Kiểm tra và lấy video ID từ URL YouTube
+    const videoId = extractYouTubeId(videoUrl);
+    
+    if (videoId) {
+        selectedMedia.push({
+            type: 'youtube',
+            url: `https://www.youtube.com/embed/${videoId}`,
+            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+        });
+        
+        updateMediaPreview();
+        updatePostButton();
+        hideVideoLinkInput();
+    } else {
+        alert('Link YouTube không hợp lệ!');
+    }
+}
+
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
 }
