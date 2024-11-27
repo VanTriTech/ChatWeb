@@ -928,42 +928,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Hàm xử lý đăng xuất
-function handleLogout() {
+// Xử lý đăng xuất với đường dẫn GitHub Pages
+function handleLogout(event) {
+    event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
+    
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        // Xóa dữ liệu đăng nhập
         localStorage.clear();
-        // Chuyển hướng về trang login
-        window.location.replace('login.html');
-        // Thêm event listener cho nút đăng xuất
-document.addEventListener('DOMContentLoaded', function() {
-    const logoutBtn = document.querySelector('.user-profile-mini i');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
-});
-        
-        // Đảm bảo URL vẫn giữ nguyên sau khi chuyển trang
-        setTimeout(() => {
-            if (window.location.pathname !== '/Shop/') {
-                const newUrl = window.location.origin + '/Shop/';
-                window.history.replaceState(null, '', newUrl);
-            }
-        }, 100);
+        window.location.href = 'https://vantritech.github.io/Shop/login.html';
     }
 }
-// Kiểm tra trạng thái đăng nhập khi tải trang
-document.addEventListener('DOMContentLoaded', () => {
-    if (!localStorage.getItem('isLoggedIn')) {
-        window.location.replace('login.html');
-        
-        // Đảm bảo URL vẫn giữ nguyên sau khi chuyển trang
-        setTimeout(() => {
-            if (window.location.pathname !== '/Shop/') {
-                const newUrl = window.location.origin + '/Shop/';
-                window.history.replaceState(null, '', newUrl);
-            }
-        }, 100);
+
+// Hiển thị tên người dùng khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        document.getElementById('currentUsername').textContent = currentUser;
     }
 });
 // Thêm hàm xử lý reaction
