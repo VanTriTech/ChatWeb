@@ -29,10 +29,20 @@ body {
 }
 
 .logo {
-    font-size: 30px;
-    margin-bottom: 20px;
-    padding: 10px;
-    color: #1d9bf0;
+    padding: 20px;
+    text-align: center;
+}
+
+.logo i {
+    font-size: 40px; /* Tăng kích thước icon */
+    color: #7bb32e; /* Màu xanh đặc trưng của WeChat */
+    transition: all 0.3s ease;
+}
+
+/* Thêm hiệu ứng hover */
+.logo i:hover {
+    color: #9cd244; /* Màu sáng hơn khi hover */
+    transform: scale(1.1); /* Hiệu ứng phóng to nhẹ */
 }
 
 .nav-menu {
