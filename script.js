@@ -188,42 +188,76 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Media Upload Handler
-    mediaInput.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-            if (file.size > 10 * 1024 * 1024) { // 10MB limit
-                alert('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB.');
-                return;
-            }
+mediaInput.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    const maxSize = 100 * 1024 * 1024; // 100MB cho video
+    
+    files.forEach(file => {
+        // Kiểm tra kích thước file
+        if (file.type.startsWith('image/') && file.size > 10 * 1024 * 1024) {
+            alert('Ảnh không được vượt quá 10MB');
+            return;
+        }
+        if (file.type.startsWith('video/') && file.size > maxSize) {
+            alert('Video không được vượt quá 100MB');
+            return;
+        }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
+            
+            // Nếu là video, tạo thumbnail
+            if (mediaType === 'video') {
+                const video = document.createElement('video');
+                video.src = e.target.result;
+                video.onloadeddata = function() {
+                    // Tạo canvas để capture thumbnail
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    selectedMedia.push({
+                        type: 'video',
+                        url: e.target.result,
+                        thumbnail: canvas.toDataURL('image/jpeg'),
+                        file: file
+                    });
+                    updateMediaPreview();
+                    updatePostButton();
+                };
+            } else {
                 selectedMedia.push({
-                    type: mediaType,
+                    type: 'image',
                     url: e.target.result,
                     file: file
                 });
                 updateMediaPreview();
                 updatePostButton();
             }
-            reader.readAsDataURL(file);
-        });
+        };
+        reader.readAsDataURL(file);
     });
+});
 
     // Update Media Preview
-    function updateMediaPreview() {
-        mediaPreview.innerHTML = selectedMedia.map((media, index) => `
-            <div class="preview-item">
-                ${media.type === 'image' 
-                    ? `<img src="${media.url}" alt="Preview">`
-                    : `<video src="${media.url}" controls></video>`
-                }
-                <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-            </div>
-        `).join('');
-        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-    }
+function updateMediaPreview() {
+    mediaPreview.innerHTML = selectedMedia.map((media, index) => `
+        <div class="preview-item">
+            ${media.type === 'image' 
+                ? `<img src="${media.url}" alt="Preview">`
+                : `<div class="video-preview">
+                     <img src="${media.thumbnail}" alt="Video thumbnail">
+                     <div class="video-duration">Video</div>
+                   </div>`
+            }
+            <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+        </div>
+    `).join('');
+    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+}
 
     // Remove Media
     window.removeMedia = function(index) {
@@ -726,37 +760,37 @@ function addPostToDOM(post) {
 
 // Xóa định nghĩa cũ của generateMediaGrid và chỉ giữ lại phiên bản này
 function generateMediaGrid(mediaItems) {
-        if (!mediaItems.length) return '';
+    if (!mediaItems.length) return '';
 
-        const imageItems = mediaItems.filter(item => item.type === 'image');
-        const videoItems = mediaItems.filter(item => item.type === 'video');
+    const gridClass = getMediaGridClass(mediaItems.length);
+    let html = `<div class="post-media ${gridClass}">`;
 
-        let gridClass = getMediaGridClass(mediaItems.length);
-        let html = `<div class="post-media ${gridClass}">`;
-
-        // Xử lý videos
-        videoItems.forEach(video => {
+    mediaItems.forEach((media, index) => {
+        if (media.type === 'video') {
             html += `
                 <div class="video-container">
-                    <video src="${video.url}" controls></video>
+                    <video src="${media.url}" 
+                           controls 
+                           preload="metadata"
+                           poster="${media.thumbnail}">
+                    </video>
                 </div>
             `;
-        });
-
-        // Xử lý tất cả ảnh, không giới hạn số lượng
-        const imageUrls = imageItems.map(img => img.url);
-        imageItems.forEach((image, index) => {
-            const imageData = encodeURIComponent(JSON.stringify(imageUrls));
+        } else {
+            const imageData = encodeURIComponent(JSON.stringify(
+                mediaItems.filter(m => m.type === 'image').map(m => m.url)
+            ));
             html += `
-                <div class="image-container" onclick="openImageModal('${image.url}', ${index}, '${imageData}')">
-                    <img src="${image.url}" alt="Post image">
+                <div class="image-container" onclick="openImageModal('${media.url}', ${index}, '${imageData}')">
+                    <img src="${media.url}" alt="Post image">
                 </div>
             `;
-        });
+        }
+    });
 
-        html += '</div>';
-        return html;
-    }
+    html += '</div>';
+    return html;
+}
 
     function getMediaGridClass(count) {
         if (count === 1) return 'single-image';
