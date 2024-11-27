@@ -12,12 +12,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chat State
     let isExpanded = false;
     let selectedMedia = [];
+    let messageTimeout;
 
     // API Key
     const GEMINI_API_KEY = 'AIzaSyDC2eRlff09hopH0Wb_j62ECNkwWpwgzVQ';
+    const GEMINI_API_KEY_2 = 'AIzaSyDC2eRlff09hopH0Wb_j62ECNkwWpwgzVQ'; // Thêm dòng này
 
     // Backup responses
     const responses = [
+        "Ừ, điều đó thú vị thật! 😊",
+        "Thật hả? Kể thêm đi! 🤗",
+        "Hihi, mình hiểu ý bạn rồi 😄",
+        "Ôi, nghe hay quá! ✨",
+        "Mình cũng nghĩ vậy đó 💕"
+    ];
+    const responses_2 = [
         "Ừ, điều đó thú vị thật! 😊",
         "Thật hả? Kể thêm đi! 🤗",
         "Hihi, mình hiểu ý bạn rồi 😄",
@@ -49,24 +58,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Get AI Response
-async function getAIResponse(message) {
+    async function getAIResponse(message, mediaUrls = []) {
     try {
         const prompt = `Bạn là Mỹ Ngọc, một cô gái 20 tuổi. Bạn và người chat là bạn thân từ nhỏ.
 
         Ngữ cảnh:
-        - Các bạn là bạn thân thiết từ nhỏ, hiểu rõ về nhau
+        - Các bạn là bạn thân thiết từ nhỏ
         - Bạn rất thông minh, hiểu biết nhiều lĩnh vực
-        - Cách nói chuyện rất tự nhiên, thân thiện như bạn bè
+        - Bạn đang học ngành Công nghệ thông tin
+        - Bạn có kiến thức sâu rộng về lập trình, toán học và khoa học
+        - Khi được hỏi về kiến thức, bạn sẽ trả lời chính xác và ngắn gọn
+        - Nếu không chắc chắn về câu trả lời, hãy nói "T không chắc chắn về điều này"
         
         Quy tắc trả lời:
         - Luôn dùng "t" thay cho "tao", "m" thay cho "mày"
-        - Viết tắt các từ phổ biến: không = k, gì = j, được = dc, biết = bít, thế = thế
+        - Viết tắt các từ phổ biến: không = k, gì = j, được = dc, biết = bít
         - Thêm emoji phù hợp với cảm xúc
         - Trả lời ngắn gọn (1-2 câu)
         - Thỉnh thoảng dùng tiếng lóng: "ô kê", "chill", "ez", "vip", "pro"
         - Thể hiện sự thân thiết qua cách nói chuyện
-        - Có thể trêu đùa, đá đểu nhẹ nhàng
+        - Khi trả lời câu hỏi kiến thức: phải chính xác, ngắn gọn và dễ hiểu
         
+        ${mediaUrls.length > 0 ? 'Có ảnh/video được gửi kèm, hãy bình luận về nó.' : ''}
         Hãy trả lời tin nhắn sau một cách tự nhiên nhất: "${message}"`;
 
         const response = await fetch(
@@ -99,17 +112,74 @@ async function getAIResponse(message) {
         return null;
     }
 }
+// Thêm hàm getAIResponse2 (sau hàm getAIResponse)
+async function getAIResponse2(message, mediaUrls = []) {
+    try {
+        const prompt = `Bạn là Lisa, một cô gái 19 tuổi. Bạn và người chat là bạn thân từ nhỏ.
+
+        Ngữ cảnh:
+        - Các bạn là bạn thân thiết từ nhỏ
+        - Bạn rất thông minh và năng động
+        - Bạn đang học ngành Kinh tế
+        - Bạn có kiến thức sâu rộng về kinh tế, xã hội và văn hóa
+        - Bạn thích K-pop và anime
+        - Khi được hỏi về kiến thức, bạn sẽ trả lời chính xác và ngắn gọn
+        - Nếu không chắc chắn về câu trả lời, hãy nói "Sorry bestie, t k chắc lắm"
+        
+        Quy tắc trả lời:
+        - Dùng ngôn ngữ thân mật, gần gũi
+        - Thường xuyên dùng từ tiếng Anh như: omg, really, wow, bestie, lol
+        - Viết tắt các từ phổ biến: không=k, gì=j, được=dc, biết=bít
+        - Thêm emoji phù hợp với cảm xúc
+        - Trả lời ngắn gọn (1-2 câu)
+        - Thỉnh thoảng dùng tiếng lóng: xink, chill, ô kê, ez
+        - Khi trả lời câu hỏi kiến thức: phải chính xác, ngắn gọn và dễ hiểu
+        
+        ${mediaUrls.length > 0 ? 'Có ảnh/video được gửi kèm, hãy bình luận về nó.' : ''}
+        Hãy trả lời tin nhắn sau một cách tự nhiên nhất: "${message}"`;
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY_2}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.9,
+                        topK: 40,
+                        topP: 0.95,
+                        maxOutputTokens: 100
+                    }
+                })
+            }
+        );
+
+        const data = await response.json();
+        return data.candidates[0].content.parts[0].text;
+    } catch (error) {
+        console.error('API Error:', error);
+        return null;
+    }
+}
+
 
     // Handle Send Message
     async function handleSendMessage() {
         const content = chatInput.value.trim();
-        if (!content && !selectedMedia.length) return;
-
+        const mediaUrls = selectedMedia.map(media => media.url);
+    
         // User message
         const userMessage = {
             id: Date.now(),
             content: content,
-            sender: 'Tôi',
+            sender: 'Benton Cato',
             timestamp: new Date().toISOString(),
             media: selectedMedia
         };
@@ -124,70 +194,109 @@ async function getAIResponse(message) {
         chatInput.focus();
         scrollToBottom();
 
+
         // Show typing
         showTypingIndicator();
 
-        try {
-            // Random delay
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-            
-            // Get AI response
-            let aiResponse = await getAIResponse(content);
-            
-            // Use backup if AI fails
-            if (!aiResponse) {
-                aiResponse = responses[Math.floor(Math.random() * responses.length)];
-            }
-
-            removeTypingIndicator();
-
-            // Bot message
-            const botMessage = {
-                id: Date.now(),
-                content: aiResponse,
-                sender: 'Mỹ Ngọc',
-                timestamp: new Date().toISOString(),
-                media: []
-            };
-
-            addMessageToDOM(botMessage);
-            saveMessage(botMessage);
-            scrollToBottom();
-        } catch (error) {
-            console.error('Error:', error);
-            removeTypingIndicator();
-            
-            // Fallback message
-            const fallbackMessage = {
-                id: Date.now(),
-                content: responses[Math.floor(Math.random() * responses.length)],
-                sender: 'Mỹ Ngọc',
-                timestamp: new Date().toISOString(),
-                media: []
-            };
-
-            addMessageToDOM(fallbackMessage);
-            saveMessage(fallbackMessage);
-            scrollToBottom();
+     try {
+        // Random delay for first response
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+        
+        // First bot response (Mỹ Ngọc)
+        let myNgocResponse = await getAIResponse(content, mediaUrls);
+        if (!myNgocResponse) {
+            myNgocResponse = responses[Math.floor(Math.random() * responses.length)];
         }
+
+        const myNgocMessage = {
+            id: Date.now(),
+            content: myNgocResponse,
+            sender: 'Mỹ Ngọc',
+            timestamp: new Date().toISOString(),
+            media: []
+        };
+
+        addMessageToDOM(myNgocMessage);
+        saveMessage(myNgocMessage);
+        scrollToBottom();
+
+        // Random delay for second response
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+
+        // Second bot response (Lisa)
+        let lisaResponse = await getAIResponse2(content, mediaUrls);
+        if (!lisaResponse) {
+            lisaResponse = responses[Math.floor(Math.random() * responses.length)];
+        }
+
+        const lisaMessage = {
+            id: Date.now(),
+            content: lisaResponse,
+            sender: 'Lisa',
+            timestamp: new Date().toISOString(),
+            media: []
+        };
+
+        addMessageToDOM(lisaMessage);
+        saveMessage(lisaMessage);
+        scrollToBottom();
+
+        // 50% chance for bots to respond to each other
+        if (Math.random() < 0.5) {
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            let myNgocToLisa = await getAIResponse(lisaResponse);
+            if (myNgocToLisa) {
+                const responseMessage = {
+                    id: Date.now(),
+                    content: myNgocToLisa,
+                    sender: 'Mỹ Ngọc',
+                    timestamp: new Date().toISOString(),
+                    media: []
+                };
+                addMessageToDOM(responseMessage);
+                saveMessage(responseMessage);
+                scrollToBottom();
+            }
+        }
+
+        if (Math.random() < 0.5) {
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            let lisaToMyNgoc = await getAIResponse2(myNgocResponse);
+            if (lisaToMyNgoc) {
+                const responseMessage = {
+                    id: Date.now(),
+                    content: lisaToMyNgoc,
+                    sender: 'Lisa',
+                    timestamp: new Date().toISOString(),
+                    media: []
+                };
+                addMessageToDOM(responseMessage);
+                saveMessage(responseMessage);
+                scrollToBottom();
+            }
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
     }
+}
 
     // Add Message to DOM
-function addMessageToDOM(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${message.sender === 'Tôi' ? 'sent' : 'received'}`;
-    messageElement.setAttribute('data-message-id', message.id);
-    
-    const mediaHTML = message.media ? message.media.map(media => `
-        <div class="message-media">
-            ${media.type === 'image' 
-                ? `<img src="${media.url}" alt="Media">`
-                : `<video src="${media.url}" controls></video>`
-            }
-        </div>
-    `).join('') : '';
+    function addMessageToDOM(message) {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${message.sender === 'Tôi' ? 'sent' : 'received'}`;
+        messageElement.setAttribute('data-message-id', message.id);
+        
+        const mediaHTML = message.media ? message.media.map(media => `
+            <div class="message-media">
+                ${media.type === 'image' 
+                    ? `<img src="${media.url}" alt="Media">`
+                    : `<video src="${media.url}" controls></video>`
+                }
+            </div>
+        `).join('') : '';
 
-    messageElement.innerHTML = `
+        messageElement.innerHTML = `
         <div class="message-content">
             <div class="message-header">
                 <span class="message-sender">${message.sender}</span>
@@ -203,6 +312,7 @@ function addMessageToDOM(message) {
 
     chatMessages.appendChild(messageElement);
 }
+
 
     // Show/Remove Typing Indicator
     function showTypingIndicator() {
