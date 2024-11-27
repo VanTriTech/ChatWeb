@@ -928,11 +928,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Hàm xử lý đăng xuất
 function handleLogout() {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem('isLoggedIn'); // Xóa trạng thái đăng nhập
-        window.location.href = 'login.html'; // Chuyển hướng về trang đăng nhập
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        
+        // Chuyển về trang login mà không đổi URL
+        fetch('login.html')
+            .then(response => response.text())
+            .then(html => {
+                document.documentElement.innerHTML = html;
+                const scripts = document.getElementsByTagName('script');
+                for (let script of scripts) {
+                    if (script.src) {
+                        const newScript = document.createElement('script');
+                        newScript.src = script.src;
+                        document.body.appendChild(newScript);
+                    }
+                }
+            });
     }
 }
 // Thêm hàm xử lý reaction
