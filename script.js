@@ -1,3 +1,149 @@
+(function() {
+    let isLocked = false;
+    
+    // Hàm khóa trang với UI cảnh báo
+    const lockPage = () => {
+        if (isLocked) return;
+        isLocked = true;
+
+        document.documentElement.innerHTML = `
+            <div style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                color: #ff0000;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                font-family: monospace;
+                z-index: 999999999;
+            ">
+                <div style="font-size: 4em; color: #ff0000; text-shadow: 0 0 10px #ff0000; animation: glitch 0.5s infinite;">
+                    ⚠️ CRITICAL SECURITY VIOLATION ⚠️
+                </div>
+                <div style="font-size: 2em; margin: 20px 0; color: #ff3333; text-shadow: 0 0 5px #ff3333;">
+                    UNAUTHORIZED SYSTEM MANIPULATION DETECTED
+                </div>
+                <div style="font-size: 1.5em; color: #ff6666; text-shadow: 0 0 5px #ff6666;">
+                    SECURITY PROTOCOL INITIATED - ALL ACTIONS LOGGED
+                </div>
+                <div style="font-size: 1.2em; margin: 20px 0; color: #ff4444;">
+                    <div>TRACKING IP: <span id="ip" style="color: #ff0000"></span></div>
+                    <div>SYSTEM: ${navigator.platform}</div>
+                    <div>BROWSER FINGERPRINT: ${navigator.userAgent}</div>
+                    <div>TIMESTAMP: ${new Date().toISOString()}</div>
+                </div>
+                <div style="font-size: 1.8em; color: #ff0000; margin: 20px 0; animation: blink 1s infinite;">
+                    ⚠️ BREACH REPORTED TO SECURITY TEAM ⚠️
+                </div>
+                <div id="countdown" style="font-size: 2em; color: #ff0000; margin-top: 20px;"></div>
+            </div>
+        `;
+
+        // Thêm style cho animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes glitch {
+                0% { transform: translate(0) skew(0deg) }
+                20% { transform: translate(-2px, 2px) skew(2deg) }
+                40% { transform: translate(-2px, -2px) skew(-2deg) }
+                60% { transform: translate(2px, 2px) skew(-2deg) }
+                80% { transform: translate(2px, -2px) skew(2deg) }
+                100% { transform: translate(0) skew(0deg) }
+            }
+            @keyframes blink {
+                0% { opacity: 1 }
+                50% { opacity: 0 }
+                100% { opacity: 1 }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Log IP
+        fetch('https://api.ipify.org?format=json')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('ip').textContent = data.ip;
+            });
+
+        // Countdown
+        let timeLeft = 15;
+        const countdown = document.getElementById('countdown');
+        const timer = setInterval(() => {
+            countdown.textContent = `SYSTEM TERMINATION IN: ${timeLeft}s`;
+            if (timeLeft <= 5) {
+                countdown.style.textShadow = '0 0 20px #ff0000';
+            }
+            timeLeft--;
+            if (timeLeft < 0) {
+                clearInterval(timer);
+                window.location.href = "about:blank";
+            }
+        }, 1000);
+
+        // Âm thanh cảnh báo
+        try {
+            const audio = new AudioContext();
+            const oscillator = audio.createOscillator();
+            const gainNode = audio.createGain();
+            
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(100, audio.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audio.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audio.destination);
+            
+            oscillator.start();
+            
+            setInterval(() => {
+                oscillator.frequency.setValueAtTime(
+                    Math.sin(audio.currentTime * 2) * 50 + 100,
+                    audio.currentTime
+                );
+            }, 100);
+
+            setTimeout(() => oscillator.stop(), 15000);
+        } catch(e) {}
+    };
+
+    // Chặn phím tắt
+    document.addEventListener('keydown', function(e) {
+        if (
+            e.key === 'F12' || 
+            e.keyCode === 123 || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+            (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+        ) {
+            e.preventDefault();
+            e.stopPropagation();
+            lockPage();
+            return false;
+        }
+    }, true);
+
+    // Chặn chuột phải
+    document.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }, true);
+
+    // Kiểm tra DevTools
+    setInterval(() => {
+        const threshold = 160;
+        const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+        const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+        
+        if (widthThreshold || heightThreshold) {
+            lockPage();
+        }
+    }, 100);
+})();
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
     const postInput = document.getElementById('post-input');
@@ -108,7 +254,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 avatar: document.querySelector('.profile-avatar img').src
             },
             media: selectedMedia,
-            likes: 0,
+            reactions: {
+                likes: 0,
+                hearts: 0,
+                angry: 0
+            },
+            userReactions: {}, // Lưu reaction của từng user
             comments: [],
             timestamp: new Date().toISOString()
         };
@@ -167,35 +318,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.toggleLike = function(postId) {
-        const likeButton = document.querySelector(`[data-post-id="${postId}"] .like-button`);
-        const likeCount = likeButton.querySelector('.like-count');
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
         const post = posts.find(p => p.id === postId);
+        const currentUser = document.querySelector('.profile-username').textContent;
         
-        if (likeButton.classList.contains('liked')) {
+        if (!post.likes) post.likes = 0;
+        if (!post.likedBy) post.likedBy = [];
+        
+        const likeButton = document.querySelector(`[data-post-id="${postId}"] .like-button`);
+        const likeIcon = likeButton.querySelector('i');
+        const likeCount = likeButton.querySelector('.like-count');
+        
+        if (post.likedBy.includes(currentUser)) {
+            // Unlike
             post.likes--;
+            post.likedBy = post.likedBy.filter(user => user !== currentUser);
+            post.userLiked = false;
             likeButton.classList.remove('liked');
-            likeButton.querySelector('i').className = 'far fa-heart';
+            likeIcon.className = 'far fa-heart';
         } else {
+            // Like
             post.likes++;
+            post.likedBy.push(currentUser);
+            post.userLiked = true;
             likeButton.classList.add('liked');
-            likeButton.querySelector('i').className = 'fas fa-heart';
+            likeIcon.className = 'fas fa-heart';
+            
+            // Thêm hiệu ứng animation khi like
+            addLikeAnimation(likeButton);
         }
         
         likeCount.textContent = post.likes;
         localStorage.setItem('posts', JSON.stringify(posts));
-    }
-
-    window.toggleComments = function(postId) {
-        const commentsSection = document.getElementById(`comments-${postId}`);
-        const isHidden = commentsSection.style.display === 'none';
-        commentsSection.style.display = isHidden ? 'block' : 'none';
         
         // Lưu trạng thái hiển thị vào localStorage
         const commentStates = JSON.parse(localStorage.getItem('commentStates') || '{}');
         commentStates[postId] = isHidden;
         localStorage.setItem('commentStates', JSON.stringify(commentStates));
     };
+// Thêm hiệu ứng animation khi like
+function addLikeAnimation(button) {
+    const heart = button.querySelector('i');
+    heart.classList.add('like-animation');
+    setTimeout(() => {
+        heart.classList.remove('like-animation');
+    }, 500);
+}
     // Thêm hàm để khôi phục trạng thái comments khi load trang
 function restoreCommentStates() {
     const commentStates = JSON.parse(localStorage.getItem('commentStates') || '{}');
@@ -510,26 +678,34 @@ function addPostToDOM(post) {
                     <button class="post-menu-button" onclick="togglePostMenu(${post.id})">
                         <i class="fas fa-ellipsis-h"></i>
                     </button>
-                    <div class="post-menu-dropdown" id="menu-${post.id}">
-                        <div class="post-menu-item delete" onclick="deletePost(${post.id})">
-                            <i class="fas fa-trash"></i>
-                            Xóa
+        <div class="post-menu-dropdown" id="menu-${post.id}">
+            <div class="post-menu-item edit" onclick="editPost(${post.id})">
+                <i class="fas fa-edit"></i>
+                Chỉnh sửa
+            </div>
+            <div class="post-menu-item delete" onclick="deletePost(${post.id})">
+                <i class="fas fa-trash"></i>
+                Xóa
                         </div>
                     </div>
                 </div>
             </div>
             ${post.content ? `<p class="post-text">${post.content}</p>` : ''}
             ${mediaHTML}
-            <div class="post-actions">
-                <button class="action-button like-button" onclick="toggleLike(${post.id})">
-                    <i class="far fa-heart"></i>
-                    <span class="like-count">${post.likes}</span>
-                </button>
-                <button class="action-button" onclick="toggleComments(${post.id})">
-                    <i class="far fa-comment"></i>
-                    <span class="comment-count">${post.comments ? post.comments.length : 0}</span>
-                </button>
-            </div>
+    <div class="post-actions">
+        <button class="action-button like-button ${post.userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+            <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
+            <span class="like-count">${post.likes || 0}</span>
+        </button>
+        <button class="action-button like2-button ${post.userLiked2 ? 'liked' : ''}" onclick="toggleLike2(${post.id})">
+            <i class="${post.userLiked2 ? 'fas' : 'far'} fa-thumbs-up"></i>
+            <span class="like2-count">${post.likes2 || 0}</span>
+        </button>
+            <button class="action-button" onclick="toggleComments(${post.id})">
+                <i class="far fa-comment"></i>
+                <span class="comment-count">${post.comments ? post.comments.length : 0}</span>
+            </button>
+        </div>
             <div class="comments-section" id="comments-${post.id}">
                 <div class="comment-form">
             <textarea class="comment-input" 
@@ -1183,4 +1359,110 @@ function setupReplyCollapse(commentId) {
             }
         }
     }
+}
+
+// Thêm hàm editPost
+window.editPost = function(postId) {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const post = posts.find(p => p.id === postId);
+    
+    if (post) {
+        const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+        const postText = postElement.querySelector('.post-text');
+        const currentContent = post.content || '';
+        
+        // Tạo form chỉnh sửa
+        const editForm = document.createElement('div');
+        editForm.className = 'edit-post-form';
+        editForm.innerHTML = `
+            <textarea class="edit-post-input">${currentContent}</textarea>
+            <div class="edit-post-actions">
+                <button class="save-edit">Lưu</button>
+                <button class="cancel-edit">Hủy</button>
+            </div>
+        `;
+        
+        // Thay thế nội dung cũ bằng form
+        if (postText) {
+            postText.replaceWith(editForm);
+        } else {
+            postElement.querySelector('.post-content').insertBefore(
+                editForm,
+                postElement.querySelector('.post-media')
+            );
+        }
+        
+        // Auto resize textarea
+        const textarea = editForm.querySelector('textarea');
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+        textarea.focus();
+        
+        // Xử lý nút Lưu
+        editForm.querySelector('.save-edit').addEventListener('click', function() {
+            const newContent = textarea.value.trim();
+            post.content = newContent;
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            // Cập nhật UI
+            editForm.replaceWith(createPostText(newContent));
+        });
+        
+        // Xử lý nút Hủy
+        editForm.querySelector('.cancel-edit').addEventListener('click', function() {
+            editForm.replaceWith(createPostText(currentContent));
+        });
+    }
+};
+
+// Hàm tạo element post text
+function createPostText(content) {
+    if (!content) return document.createElement('div');
+    const postText = document.createElement('p');
+    postText.className = 'post-text';
+    postText.textContent = content;
+    return postText;
+}
+window.toggleLike2 = function(postId) {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const post = posts.find(p => p.id === postId);
+    const currentUser = document.querySelector('.profile-username').textContent;
+    
+    if (!post.likes2) post.likes2 = 0;
+    if (!post.liked2By) post.liked2By = [];
+    
+    const like2Button = document.querySelector(`[data-post-id="${postId}"] .like2-button`);
+    const like2Icon = like2Button.querySelector('i');
+    const like2Count = like2Button.querySelector('.like2-count');
+    
+    if (post.liked2By.includes(currentUser)) {
+        // Unlike
+        post.likes2--;
+        post.liked2By = post.liked2By.filter(user => user !== currentUser);
+        post.userLiked2 = false;
+        like2Button.classList.remove('liked');
+        like2Icon.className = 'far fa-thumbs-up';
+    } else {
+        // Like
+        post.likes2++;
+        post.liked2By.push(currentUser);
+        post.userLiked2 = true;
+        like2Button.classList.add('liked');
+        like2Icon.className = 'fas fa-thumbs-up';
+        
+        // Thêm hiệu ứng animation khi like
+        addLike2Animation(like2Button);
+    }
+    
+    like2Count.textContent = post.likes2;
+    localStorage.setItem('posts', JSON.stringify(posts));
+};
+
+// Thêm hiệu ứng animation cho like2
+function addLike2Animation(button) {
+    const thumbsUp = button.querySelector('i');
+    thumbsUp.classList.add('like-animation');
+    setTimeout(() => {
+        thumbsUp.classList.remove('like-animation');
+    }, 500);
 }
