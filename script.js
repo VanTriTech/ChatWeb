@@ -382,18 +382,25 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    // Sắp xếp posts từ mới đến cũ
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Xóa nội dung cũ
+    postsContainer.innerHTML = '';
+    
+    // Thêm posts mới
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
-    
         
         // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
+        post.comments?.forEach(comment => {
             if (comment.replies && comment.replies.length > 0) {
                 setupReplyCollapse(comment.id);
             }
         });
     });
+    
     restoreCommentStates();
     restoreReactionStates();
 }
@@ -576,8 +583,14 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
-    localStorage.setItem('posts', JSON.stringify(posts));
+    posts.unshift(post); // Thêm post mới vào đầu mảng
+    
+    try {
+        localStorage.setItem('posts', JSON.stringify(posts));
+        console.log('Post saved successfully:', post);
+    } catch (error) {
+        console.error('Error saving post:', error);
+    }
 }
 
 
