@@ -2,6 +2,14 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <!-- Thêm script kiểm tra đăng nhập vào đầu file, trước mọi thứ -->
+    <script>
+        // Kiểm tra trạng thái đăng nhập
+        if (!localStorage.getItem('isLoggedIn')) {
+            // Chuyển hướng về trang login với đường dẫn GitHub Pages đầy đủ
+            window.location.replace('https://vantritech.github.io/Shop/login.html');
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Chat</title>
