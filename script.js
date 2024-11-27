@@ -188,96 +188,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Media Upload Handler
-mediaInput.addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
-    
-    files.forEach(file => {
-        // Chỉ cho phép upload ảnh
-        if (!file.type.startsWith('image/')) {
-            alert('Hiện tại chỉ hỗ trợ đăng ảnh. Vui lòng sử dụng link YouTube hoặc Vimeo cho video.');
-            return;
-        }
+    mediaInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                alert('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB.');
+                return;
+            }
 
-        if (file.size > 10 * 1024 * 1024) { // 10MB limit cho ảnh
-            alert('Ảnh không được vượt quá 10MB');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedMedia.push({
-                type: 'image',
-                url: e.target.result,
-                file: file
-            });
-            updateMediaPreview();
-            updatePostButton();
-        }
-        reader.readAsDataURL(file);
-    });
-});
-
-// Thêm hàm để xử lý video từ link
-function addVideoFromLink() {
-    const videoUrl = prompt('Nhập link video YouTube hoặc Vimeo:');
-    if (!videoUrl) return;
-
-    // Kiểm tra và lấy ID video
-    let videoId = '';
-    let videoType = '';
-
-    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-        videoId = extractYouTubeId(videoUrl);
-        videoType = 'youtube';
-    } else if (videoUrl.includes('vimeo.com')) {
-        videoId = extractVimeoId(videoUrl);
-        videoType = 'vimeo';
-    }
-
-    if (videoId) {
-        selectedMedia.push({
-            type: 'video',
-            videoType: videoType,
-            videoId: videoId,
-            url: videoUrl
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
+                selectedMedia.push({
+                    type: mediaType,
+                    url: e.target.result,
+                    file: file
+                });
+                updateMediaPreview();
+                updatePostButton();
+            }
+            reader.readAsDataURL(file);
         });
-        updateMediaPreview();
-        updatePostButton();
-    } else {
-        alert('Link video không hợp lệ. Vui lòng sử dụng link YouTube hoặc Vimeo.');
-    }
-}
-// Hàm trích xuất YouTube ID
-function extractYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
-
-// Hàm trích xuất Vimeo ID
-function extractVimeoId(url) {
-    const regExp = /vimeo\.com\/([0-9]+)/;
-    const match = url.match(regExp);
-    return match ? match[1] : null;
-}
-
+    });
 
     // Update Media Preview
-function updateMediaPreview() {
-    mediaPreview.innerHTML = selectedMedia.map((media, index) => `
-        <div class="preview-item">
-            ${media.type === 'image' 
-                ? `<img src="${media.url}" alt="Preview">`
-                : `<div class="video-preview">
-                     <img src="${media.thumbnail}" alt="Video thumbnail">
-                     <div class="video-duration">Video</div>
-                   </div>`
-            }
-            <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-        </div>
-    `).join('');
-    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-}
+    function updateMediaPreview() {
+        mediaPreview.innerHTML = selectedMedia.map((media, index) => `
+            <div class="preview-item">
+                ${media.type === 'image' 
+                    ? `<img src="${media.url}" alt="Preview">`
+                    : `<video src="${media.url}" controls></video>`
+                }
+                <button class="remove-preview" onclick="removeMedia(${index})">×</button>
+            </div>
+        `).join('');
+        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+    }
 
     // Remove Media
     window.removeMedia = function(index) {
@@ -780,51 +726,37 @@ function addPostToDOM(post) {
 
 // Xóa định nghĩa cũ của generateMediaGrid và chỉ giữ lại phiên bản này
 function generateMediaGrid(mediaItems) {
-    if (!mediaItems.length) return '';
+        if (!mediaItems.length) return '';
 
-    const gridClass = getMediaGridClass(mediaItems.length);
-    let html = `<div class="post-media ${gridClass}">`;
+        const imageItems = mediaItems.filter(item => item.type === 'image');
+        const videoItems = mediaItems.filter(item => item.type === 'video');
 
-    mediaItems.forEach((media, index) => {
-        if (media.type === 'video') {
-            if (media.videoType === 'youtube') {
-                html += `
-                    <div class="video-container">
-                        <iframe 
-                            src="https://www.youtube.com/embed/${media.videoId}"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            } else if (media.videoType === 'vimeo') {
-                html += `
-                    <div class="video-container">
-                        <iframe 
-                            src="https://player.vimeo.com/video/${media.videoId}"
-                            frameborder="0"
-                            allow="autoplay; fullscreen; picture-in-picture"
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-            }
-        } else {
-            const imageData = encodeURIComponent(JSON.stringify(
-                mediaItems.filter(m => m.type === 'image').map(m => m.url)
-            ));
+        let gridClass = getMediaGridClass(mediaItems.length);
+        let html = `<div class="post-media ${gridClass}">`;
+
+        // Xử lý videos
+        videoItems.forEach(video => {
             html += `
-                <div class="image-container" onclick="openImageModal('${media.url}', ${index}, '${imageData}')">
-                    <img src="${media.url}" alt="Post image">
+                <div class="video-container">
+                    <video src="${video.url}" controls></video>
                 </div>
             `;
-        }
-    });
+        });
 
-    html += '</div>';
-    return html;
-}
+        // Xử lý tất cả ảnh, không giới hạn số lượng
+        const imageUrls = imageItems.map(img => img.url);
+        imageItems.forEach((image, index) => {
+            const imageData = encodeURIComponent(JSON.stringify(imageUrls));
+            html += `
+                <div class="image-container" onclick="openImageModal('${image.url}', ${index}, '${imageData}')">
+                    <img src="${image.url}" alt="Post image">
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        return html;
+    }
 
     function getMediaGridClass(count) {
         if (count === 1) return 'single-image';
@@ -1538,156 +1470,4 @@ function addLike2Animation(button) {
     setTimeout(() => {
         thumbsUp.classList.remove('like-animation');
     }, 500);
-}
-// Thêm nút đăng video vào giao diện
-const uploadButtons = `
-    <div class="upload-buttons">
-        <button onclick="document.getElementById('media-input').click()">
-            <i class="fas fa-image"></i> Ảnh
-        </button>
-        <button onclick="addVideoByLink()">
-            <i class="fas fa-video"></i> Video
-        </button>
-    </div>
-`;
-
-// Hàm xử lý thêm video bằng link
-function addVideoByLink() {
-    const videoUrl = prompt('Nhập link video (YouTube hoặc direct link):');
-    if (!videoUrl) return;
-
-    // Kiểm tra nếu là link YouTube
-    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-        const videoId = extractYouTubeId(videoUrl);
-        if (videoId) {
-            selectedMedia.push({
-                type: 'video',
-                source: 'youtube',
-                url: `https://www.youtube.com/embed/${videoId}`,
-                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`
-            });
-        }
-    } 
-    // Nếu là direct link video
-    else if (videoUrl.match(/\.(mp4|webm|ogg)$/i)) {
-        selectedMedia.push({
-            type: 'video',
-            source: 'direct',
-            url: videoUrl
-        });
-    }
-    else {
-        alert('Link video không hợp lệ. Vui lòng sử dụng link YouTube hoặc direct link video (mp4, webm, ogg)');
-        return;
-    }
-
-    updateMediaPreview();
-    updatePostButton();
-}
-
-// Hàm lấy YouTube ID từ link
-function extractYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
-
-// Cập nhật hàm hiển thị preview
-function updateMediaPreview() {
-    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
-        if (media.type === 'video') {
-            if (media.source === 'youtube') {
-                return `
-                    <div class="preview-item">
-                        <img src="${media.thumbnail}" alt="Video thumbnail">
-                        <div class="video-overlay">
-                            <i class="fab fa-youtube"></i>
-                        </div>
-                        <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="preview-item">
-                        <video src="${media.url}" controls></video>
-                        <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                    </div>
-                `;
-            }
-        } else {
-            return `
-                <div class="preview-item">
-                    <img src="${media.url}" alt="Preview">
-                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                </div>
-            `;
-        }
-    }).join('');
-    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-}
-// Thêm vào phần HTML của form đăng bài
-document.querySelector('.post-actions').innerHTML = `
-    <div class="upload-buttons">
-        <button class="media-btn" onclick="document.getElementById('media-input').click()">
-            <i class="fas fa-image"></i> Ảnh
-        </button>
-        <button class="video-btn" onclick="addVideoByLink()">
-            <i class="fas fa-video"></i> Video
-        </button>
-    </div>
-`;
-
-// Thêm CSS cho các nút
-const style = document.createElement('style');
-style.textContent = `
-    .upload-buttons {
-        display: flex;
-        gap: 10px;
-        margin: 10px 0;
-    }
-
-    .media-btn, .video-btn {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        background: #f0f2f5;
-        transition: background 0.2s;
-    }
-
-    .media-btn:hover, .video-btn:hover {
-        background: #e4e6e9;
-    }
-
-    .media-btn i, .video-btn i {
-        font-size: 1.2em;
-    }
-`;
-document.head.appendChild(style);
-
-// Thêm hàm xử lý video
-function addVideoByLink() {
-    const videoUrl = prompt('Nhập link video YouTube:');
-    if (!videoUrl) return;
-
-    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-        const videoId = extractYouTubeId(videoUrl);
-        if (videoId) {
-            selectedMedia.push({
-                type: 'video',
-                source: 'youtube',
-                url: `https://www.youtube.com/embed/${videoId}`,
-                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`
-            });
-            updateMediaPreview();
-            updatePostButton();
-        } else {
-            alert('Link YouTube không hợp lệ');
-        }
-    } else {
-        alert('Vui lòng sử dụng link YouTube');
-    }
 }
