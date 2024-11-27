@@ -1487,3 +1487,9 @@ setTimeout(() => {
             }
         });
 }, 3000);
+<!-- Thay đổi tất cả các href trong navigation -->
+<a href="javascript:void(0)" onclick="loadPage('index.html')">Trang chủ</a>
+<a href="javascript:void(0)" onclick="loadPage('profile.html')">Hồ sơ</a>
+<!-- ... -->
+
+<!-- Thêm function loadPage vào script.js -->
