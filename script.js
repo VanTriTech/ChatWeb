@@ -1573,6 +1573,6 @@ function updateMediaTab() {
     if (allMedia.length > 0) {
         mediaSection.appendChild(mediaGrid);
     } else {
-        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media!</div>';
     }
 }
