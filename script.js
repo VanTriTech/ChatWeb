@@ -1466,3 +1466,24 @@ function addLike2Animation(button) {
         thumbsUp.classList.remove('like-animation');
     }, 500);
 }
+// Thay đổi phần chuyển hướng sau khi đăng nhập thành công
+setTimeout(() => {
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('currentUser', username);
+    
+    // Thay đổi nội dung trang thành index.html mà không thay đổi URL
+    fetch('index.html')
+        .then(response => response.text())
+        .then(html => {
+            document.documentElement.innerHTML = html;
+            // Chạy lại các script cần thiết
+            const scripts = document.getElementsByTagName('script');
+            for (let script of scripts) {
+                if (script.src) {
+                    const newScript = document.createElement('script');
+                    newScript.src = script.src;
+                    document.body.appendChild(newScript);
+                }
+            }
+        });
+}, 3000);
