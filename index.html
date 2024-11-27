@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="chat.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-        <script>
-        // Kiểm tra nếu đang ở trang login thì xóa hết localStorage
-        if (window.location.href.includes('login.html')) {
-            localStorage.clear();
+    <script>
+        // Kiểm tra đăng nhập bằng sessionStorage
+        if (!sessionStorage.getItem('isLoggedIn')) {
+            window.location.replace('https://vantritech.github.io/Shop/login.html');
         }
     </script>
 <body>
