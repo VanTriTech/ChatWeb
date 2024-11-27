@@ -155,7 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileUsername = document.querySelector('.profile-username').textContent;
     const navItems = document.querySelectorAll('.nav-item');
     const contentSections = document.querySelectorAll('.content-section');
-
     
 
     let selectedMedia = [];
@@ -199,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                
                 const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
                 selectedMedia.push({
                     type: mediaType,
@@ -212,69 +210,10 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         });
     });
-// Thêm đoạn code này vào phần đầu của file script.js
-document.addEventListener('DOMContentLoaded', function() {
-
-    // Các biến và sự kiện hiện có...
-
-    // Thêm sự kiện cho nút YouTube
-    const youtubeBtn = document.getElementById('youtube-btn');
-    if (youtubeBtn) {
-        youtubeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            addVideoFromLink();
-        });
-    }
-});
-
-// Hàm xử lý thêm video YouTube
-// Thêm hàm xử lý video YouTube
-function addVideoFromLink() {
-    const videoUrl = prompt('Nhập link video YouTube:');
-    if (!videoUrl) return;
-
-    // Lấy video ID từ URL YouTube
-    const videoId = extractYouTubeId(videoUrl);
-    if (!videoId) {
-        alert('Link video không hợp lệ. Vui lòng kiểm tra lại.');
-        return;
-    }
-
-    // Thêm video vào selectedMedia
-    selectedMedia.push({
-        type: 'youtube',
-        url: `https://www.youtube.com/embed/${videoId}`,
-        videoId: videoId
-    });
-
-    updateMediaPreview();
-    updatePostButton();
-}
-
-// Hàm trích xuất ID video từ URL YouTube
-function extractYouTubeId(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
 
     // Update Media Preview
-// Cập nhật hàm updateMediaPreview để hỗ trợ video YouTube
-function updateMediaPreview() {
-    if (!mediaPreview) return;
-    
-    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
-        if (media.type === 'youtube') {
-            return `
-                <div class="preview-item youtube-video">
-                    <iframe src="${media.url}" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen></iframe>
-                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                </div>
-            `;
-        }
-        return `
+    function updateMediaPreview() {
+        mediaPreview.innerHTML = selectedMedia.map((media, index) => `
             <div class="preview-item">
                 ${media.type === 'image' 
                     ? `<img src="${media.url}" alt="Preview">`
@@ -282,10 +221,9 @@ function updateMediaPreview() {
                 }
                 <button class="remove-preview" onclick="removeMedia(${index})">×</button>
             </div>
-        `;
-    }).join('');
-    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-}
+        `).join('');
+        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+    }
 
     // Remove Media
     window.removeMedia = function(index) {
@@ -485,32 +423,32 @@ function addComment(postId, content) {
     
     // Xử lý nội dung comment để tìm custom tags
     function processCommentContent(content) {
-        const lines = content.trim().split('\n');
-        let processedContent = '';
+        const lines = content.split('\n');
+        let processedContent = [];
         let customName = '';
         let customAvatar = '';
         
-        // Xử lý từng dòng theo thứ tự
-        if (lines.length >= 3) {
-            // Dòng 1: Nội dung bình luận
-            processedContent = lines[0].trim();
-            // Dòng 2: Tên người dùng (bỏ @ nếu có)
-            customName = lines[1].trim().replace(/^@/, '');
-            // Dòng 3: URL avatar
-            if (lines[2].match(/^https?:\/\/.+\.(jpg|jpeg|png|gif)$/i)) {
-                customAvatar = lines[2].trim();
-            }
+    // Kiểm tra từng dòng
+    for (let line of lines) {
+        line = line.trim();
+        if (line.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif)$/i)) {
+            // Nếu là URL ảnh
+            customAvatar = line;
+        } else if (line.startsWith('@')) {
+            // Nếu là tên người dùng
+            customName = line.substring(1);
         } else {
-            // Nếu không đủ 3 dòng, coi tất cả là nội dung
-            processedContent = lines.join('\n').trim();
+            // Nếu là nội dung bình thường
+            processedContent.push(line);
         }
-        
-        return {
-            content: processedContent,
-            customName: customName || null,
-            customAvatar: customAvatar || null
-        };
     }
+    
+    return {
+        content: processedContent.join('\n').trim(),
+        customName: customName,
+        customAvatar: customAvatar
+    };
+}
 
     const processedComment = processCommentContent(content);
     
@@ -982,24 +920,19 @@ window.editComment = function(postId, commentId) {
         });
     }
 };
-// Kiểm tra đăng nhập và URL khi tải trang
+// Kiểm tra đăng nhập khi tải trang
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-        // Chưa đăng nhập, chuyển về trang login
-        window.location.replace('https://vantritech.github.io/Shop/login.html');
-        return;
+        // Chưa đăng nhập, chuyển hướng về login.html
+        window.location.href = 'login.html';
     }
-    
-    // Kiểm tra và sửa URL nếu cần
-    normalizeURL();
 });
 
-// Sửa hàm handleLogout
+// Hàm xử lý đăng xuất
 function handleLogout() {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('currentUser');
-        window.location.replace('https://vantritech.github.io/Shop/login.html');
+        localStorage.removeItem('isLoggedIn'); // Xóa trạng thái đăng nhập
+        window.location.href = 'login.html'; // Chuyển hướng về trang đăng nhập
     }
 }
 // Thêm hàm xử lý reaction
@@ -1533,235 +1466,3 @@ function addLike2Animation(button) {
         thumbsUp.classList.remove('like-animation');
     }, 500);
 }
-// Add to your existing DOMContentLoaded event listener
-document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-    
-    const videoUpload = document.getElementById('video-upload');
-    const uploadContainer = document.querySelector('.upload-container');
-    
-    // Drag and drop functionality
-    uploadContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadContainer.style.borderColor = '#1d9bf0';
-        uploadContainer.style.background = 'rgba(29, 155, 240, 0.1)';
-    });
-    
-    uploadContainer.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        uploadContainer.style.borderColor = '#2f3336';
-        uploadContainer.style.background = 'transparent';
-    });
-    
-    uploadContainer.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadContainer.style.borderColor = '#2f3336';
-        uploadContainer.style.background = 'transparent';
-        
-        const files = e.dataTransfer.files;
-        handleVideoUpload(files);
-    });
-    
-    videoUpload.addEventListener('change', (e) => {
-        handleVideoUpload(e.target.files);
-    });
-    
-function handleVideoUpload(files) {
-    Array.from(files).forEach(file => {
-        if (!file.type.startsWith('video/')) {
-            alert('Vui lòng chỉ tải lên file video!');
-            return;
-        }
-
-        // Tạo loading indicator
-        const loadingPost = createLoadingPost();
-        const mediaContainer = document.getElementById('media-posts-container');
-        mediaContainer.insertBefore(loadingPost, mediaContainer.firstChild);
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Khi video đã load xong
-            const videoPost = {
-                id: Date.now(),
-                type: 'video',
-                url: e.target.result,
-                author: {
-                    name: document.querySelector('.profile-name').textContent,
-                    username: document.querySelector('.profile-username').textContent,
-                    avatar: document.querySelector('.profile-avatar img').src
-                },
-                timestamp: new Date().toISOString(),
-                likes: 0,
-                likes2: 0,
-                comments: []
-            };
-
-            // Xóa loading indicator và thêm video post
-            loadingPost.remove();
-            saveVideoPost(videoPost);
-            addVideoToDOM(videoPost);
-        };
-
-        // Hiển thị tiến trình upload
-        reader.onprogress = function(e) {
-            if (e.lengthComputable) {
-                const progress = Math.round((e.loaded / e.total) * 100);
-                updateLoadingProgress(loadingPost, progress);
-            }
-        };
-
-        reader.readAsDataURL(file);
-    });
-}
-    // Tạo loading indicator
-function createLoadingPost() {
-    const loadingElement = document.createElement('div');
-    loadingElement.className = 'video-post loading';
-    loadingElement.innerHTML = `
-        <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Đang tải video... <span class="loading-progress">0%</span></div>
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-        </div>
-    `;
-    return loadingElement;
-}
-    // Cập nhật tiến trình
-function updateLoadingProgress(loadingElement, progress) {
-    const progressText = loadingElement.querySelector('.loading-progress');
-    const progressFill = loadingElement.querySelector('.progress-fill');
-    
-    progressText.textContent = `${progress}%`;
-    progressFill.style.width = `${progress}%`;
-}
-    
-    function saveVideoPost(post) {
-        const mediaPosts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
-        mediaPosts.unshift(post);
-        localStorage.setItem('mediaPosts', JSON.stringify(mediaPosts));
-    }
-    
-    function addVideoToDOM(post) {
-        const mediaContainer = document.getElementById('media-posts-container');
-        const videoElement = document.createElement('div');
-        videoElement.className = 'video-post';
-        videoElement.setAttribute('data-post-id', post.id);
-        
-        videoElement.innerHTML = `
-            <div class="video-container">
-                <video controls>
-                    <source src="${post.url}" type="video/mp4">
-                </video>
-            </div>
-            <div class="video-post-info">
-                <div class="post-header">
-                    <div class="post-info">
-                        <img src="${post.author.avatar}" alt="Avatar" class="post-avatar">
-                        <span class="post-name">${post.author.name}</span>
-                        <span class="post-username">${post.author.username}</span>
-                        <span class="post-time">${formatTime(post.timestamp)}</span>
-                    </div>
-                    <div class="post-menu">
-                        <button class="post-menu-button" onclick="togglePostMenu(${post.id})">
-                            <i class="fas fa-ellipsis"></i>
-                        </button>
-                        <div class="post-menu-dropdown" id="menu-${post.id}">
-                            <div class="post-menu-item delete" onclick="deletePost(${post.id})">
-                                <i class="fas fa-trash"></i>
-                                Xóa
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="video-post-actions">
-                <button class="action-button like-button" onclick="toggleLike(${post.id})">
-                    <i class="far fa-heart"></i>
-                    <span class="like-count">0</span>
-                </button>
-                <button class="action-button like2-button" onclick="toggleLike2(${post.id})">
-                    <i class="far fa-thumbs-up"></i>
-                    <span class="like2-count">0</span>
-                </button>
-                <button class="action-button comment-button" onclick="toggleComments(${post.id})">
-                    <i class="far fa-comment"></i>
-                    <span class="comment-count">0</span>
-                </button>
-            </div>
-            <div class="comments-section" id="comments-${post.id}">
-                <input type="text" class="comment-input" placeholder="Viết bình luận..."
-                       onkeypress="handleComment(event, ${post.id})">
-                <div class="comment-list"></div>
-            </div>
-        `;
-        
-        mediaContainer.insertBefore(videoElement, mediaContainer.firstChild);
-    }
-    
-    // Load existing media posts
-    function loadMediaPosts() {
-        const mediaPosts = JSON.parse(localStorage.getItem('mediaPosts') || '[]');
-        mediaPosts.forEach(post => addVideoToDOM(post));
-    }
-    
-    loadMediaPosts();
-});
-// Thêm vào cuối file script.js
-document.addEventListener('DOMContentLoaded', function() {
-    // Kiểm tra xem đang ở tab Media không
-    const mediaSection = document.getElementById('media-section');
-    if (!mediaSection) return;
-
-    // Sửa đổi xử lý media input trong tab Media
-    const mediaInput = document.getElementById('media-input');
-    if (mediaInput) {
-        mediaInput.setAttribute('accept', 'video/*');
-        mediaInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
-                if (!file.type.startsWith('video/')) {
-                    alert('Vui lòng chỉ tải lên file video trong tab Media');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    selectedMedia.push({
-                        type: 'video',
-                        url: e.target.result,
-                        file: file
-                    });
-                    updateMediaPreview();
-                    updatePostButton();
-                }
-                reader.readAsDataURL(file);
-            });
-        });
-    }
-
-    // Cập nhật hàm updateMediaPreview để xử lý video
-    const originalUpdateMediaPreview = window.updateMediaPreview;
-    window.updateMediaPreview = function() {
-        if (!mediaPreview) return;
-        
-        mediaPreview.innerHTML = selectedMedia.map((media, index) => {
-            if (media.type === 'video') {
-                return `
-                    <div class="preview-item">
-                        <video src="${media.url}" controls></video>
-                        <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                    </div>
-                `;
-            }
-            return `
-                <div class="preview-item">
-                    <img src="${media.url}" alt="Preview">
-                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                </div>
-            `;
-        }).join('');
-        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-    };
-});
