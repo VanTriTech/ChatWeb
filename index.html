@@ -48,14 +48,14 @@
                 <button class="tweet-btn">Đăng</button>
             </nav>
             <!-- User Profile Mini -->
+<!-- Sửa lại phần user-profile-mini -->
 <div class="user-profile-mini">
-    <img src="..." alt="Avatar">
+    <img src="https://pbs.twimg.com/profile_images/1555161839084130305/qdiqtMRU_400x400.jpg" alt="Avatar">
     <div class="user-info">
-        <span class="user-name">...</span>
-        <span class="user-handle">...</span>
+        <span class="user-name" id="currentUsername"></span>
+        <span class="user-handle">✔ Được xác nhận</span>
     </div>
-    <!-- Thêm onclick trực tiếp vào icon -->
-    <i class="fas fa-ellipsis" onclick="handleLogout()"></i>
+    <i class="fas fa-sign-out-alt" onclick="handleLogout()" title="Đăng xuất"></i>
 </div>
         </aside>
         <!-- Main Content -->
