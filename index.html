@@ -181,7 +181,14 @@
             </div>
         </aside>
     </div>
-    <!-- Thêm vào phần head hiện có -->
+<div class="post-actions">
+    <button onclick="document.getElementById('media-input').click()">
+        <i class="fas fa-image"></i> Thêm ảnh
+    </button>
+    <button onclick="addVideoFromLink()">
+        <i class="fas fa-video"></i> Thêm video
+    </button>
+</div>
     <script>
         // Kiểm tra ngay khi tải trang
         if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
