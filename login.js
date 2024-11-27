@@ -233,18 +233,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (user.password !== hashedPassword) {
             alert('Nhập sai mật khẩu');
         } else {
-            const button = event.target.querySelector('button');
-            const originalButtonText = button.textContent;
-            button.textContent = 'Đang tải...';
-            button.disabled = true;
+} else {
+    const button = event.target.querySelector('button');
+    const originalButtonText = button.textContent;
+    button.textContent = 'Đang tải...';
+    button.disabled = true;
 
-            setTimeout(() => {
-                localStorage.setItem('isLoggedIn', 'true');
-                // Lưu username gốc thay vì hash
-                localStorage.setItem('currentUser', username);
-                window.location.href = user.redirectTo;
-            }, 3000);
-        }
+    setTimeout(() => {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', username);
+        localStorage.setItem('userHash', hashedUsername); // Lưu thêm hash để kiểm tra
+        window.location.href = 'https://vantritech.github.io/Shop/' + user.redirectTo;
+    }, 3000);
+}
     });
 });
 // Hiển thị tên người dùng khi tải trang
