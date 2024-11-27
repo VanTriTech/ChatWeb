@@ -935,6 +935,13 @@ function handleLogout() {
         localStorage.clear();
         // Chuyển hướng về trang login
         window.location.replace('login.html');
+        // Thêm event listener cho nút đăng xuất
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtn = document.querySelector('.user-profile-mini i');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+});
         
         // Đảm bảo URL vẫn giữ nguyên sau khi chuyển trang
         setTimeout(() => {
