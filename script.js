@@ -932,10 +932,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleLogout(event) {
     event.preventDefault();
     if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+        // Xóa session
+        sessionStorage.clear();
         localStorage.clear();
-        window.location.href = 'https://vantritech.github.io/Shop/login.html';
-        // Ngăn chặn việc quay lại trang trước đó
-        window.history.pushState(null, '', 'https://vantritech.github.io/Shop/login.html');
+        
+        // Chuyển hướng và ngăn quay lại
+        window.location.replace('https://vantritech.github.io/Shop/login.html');
     }
 }
 
