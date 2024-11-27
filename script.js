@@ -929,11 +929,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Xử lý đăng xuất với đường dẫn GitHub Pages
-function handleLogout(event) {
-    event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
-    
+function handleLogout() {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.clear();
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
         window.location.href = 'https://vantritech.github.io/Shop/login.html';
     }
 }
