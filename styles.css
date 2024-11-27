@@ -338,12 +338,13 @@ body {
     transform: scale(1.1);
 }
 /* Post Actions */
+/* Cập nhật post-actions */
 .post-actions {
     display: flex;
-    gap: 16px;
-    padding: 8px 0;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
     border-top: 1px solid #2f3336;
-    margin-top: 12px;
 }
 
 .action-button {
@@ -1532,4 +1533,28 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+/* Thêm style cho upload-buttons */
+.upload-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.media-btn,
+.video-btn {
+    background: none;
+    border: none;
+    color: #1d9bf0;
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.2s;
+}
+
+.media-btn:hover,
+.video-btn:hover {
+    background-color: rgba(29, 155, 240, 0.1);
 }
