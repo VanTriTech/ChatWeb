@@ -721,6 +721,7 @@ function addPostToDOM(post) {
     `;
 
     postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    updateMediaTab();
 }
 
 
@@ -1470,4 +1471,57 @@ function addLike2Animation(button) {
     setTimeout(() => {
         thumbsUp.classList.remove('like-animation');
     }, 500);
+}
+// Thêm hàm để cập nhật tab Media
+function updateMediaTab() {
+    const mediaSection = document.getElementById('media-section');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Lọc tất cả media từ các bài đăng
+    const allMedia = posts.reduce((acc, post) => {
+        if (post.media && post.media.length) {
+            acc.push(...post.media.map(media => ({
+                ...media,
+                postId: post.id,
+                timestamp: post.timestamp
+            })));
+        }
+        return acc;
+    }, []);
+    
+    // Sắp xếp media theo thời gian mới nhất
+    allMedia.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Tạo grid hiển thị media
+    const mediaGrid = document.createElement('div');
+    mediaGrid.className = 'post-media multiple-images';
+    
+    // Tạo HTML cho từng media item
+    const mediaHTML = allMedia.map(media => {
+        if (media.type === 'image') {
+            const imageData = encodeURIComponent(JSON.stringify([media]));
+            return `
+                <div class="image-container" onclick="openImageModal('${media.url}', 0, '${imageData}')">
+                    <img src="${media.url}" alt="Media content">
+                </div>
+            `;
+        } else if (media.type === 'video') {
+            return `
+                <div class="video-container">
+                    <video src="${media.url}" controls></video>
+                </div>
+            `;
+        }
+        return '';
+    }).join('');
+    
+    mediaGrid.innerHTML = mediaHTML;
+    
+    // Xóa nội dung cũ và thêm grid mới
+    mediaSection.innerHTML = '';
+    if (allMedia.length > 0) {
+        mediaSection.appendChild(mediaGrid);
+    } else {
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media!</div>';
+    }
 }
