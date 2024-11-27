@@ -423,32 +423,32 @@ function addComment(postId, content) {
     
     // Xử lý nội dung comment để tìm custom tags
     function processCommentContent(content) {
-        const lines = content.split('\n');
-        let processedContent = [];
+        const lines = content.trim().split('\n');
+        let processedContent = '';
         let customName = '';
         let customAvatar = '';
         
-    // Kiểm tra từng dòng
-    for (let line of lines) {
-        line = line.trim();
-        if (line.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif)$/i)) {
-            // Nếu là URL ảnh
-            customAvatar = line;
-        } else if (line.startsWith('@')) {
-            // Nếu là tên người dùng
-            customName = line.substring(1);
+        // Xử lý từng dòng theo thứ tự
+        if (lines.length >= 3) {
+            // Dòng 1: Nội dung bình luận
+            processedContent = lines[0].trim();
+            // Dòng 2: Tên người dùng (bỏ @ nếu có)
+            customName = lines[1].trim().replace(/^@/, '');
+            // Dòng 3: URL avatar
+            if (lines[2].match(/^https?:\/\/.+\.(jpg|jpeg|png|gif)$/i)) {
+                customAvatar = lines[2].trim();
+            }
         } else {
-            // Nếu là nội dung bình thường
-            processedContent.push(line);
+            // Nếu không đủ 3 dòng, coi tất cả là nội dung
+            processedContent = lines.join('\n').trim();
         }
+        
+        return {
+            content: processedContent,
+            customName: customName || null,
+            customAvatar: customAvatar || null
+        };
     }
-    
-    return {
-        content: processedContent.join('\n').trim(),
-        customName: customName,
-        customAvatar: customAvatar
-    };
-}
 
     const processedComment = processCommentContent(content);
     
@@ -920,19 +920,24 @@ window.editComment = function(postId, commentId) {
         });
     }
 };
-// Kiểm tra đăng nhập khi tải trang
+// Kiểm tra đăng nhập và URL khi tải trang
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-        // Chưa đăng nhập, chuyển hướng về login.html
-        window.location.href = 'login.html';
+        // Chưa đăng nhập, chuyển về trang login
+        window.location.replace('https://vantritech.github.io/Shop/login.html');
+        return;
     }
+    
+    // Kiểm tra và sửa URL nếu cần
+    normalizeURL();
 });
 
-// Hàm xử lý đăng xuất
+// Sửa hàm handleLogout
 function handleLogout() {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem('isLoggedIn'); // Xóa trạng thái đăng nhập
-        window.location.href = 'login.html'; // Chuyển hướng về trang đăng nhập
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        window.location.replace('https://vantritech.github.io/Shop/login.html');
     }
 }
 // Thêm hàm xử lý reaction
