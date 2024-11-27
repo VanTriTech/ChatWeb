@@ -238,3 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+// Thêm event listener để xử lý trường hợp trang không tự chuyển hướng
+window.addEventListener('storage', (e) => {
+    if (e.key === 'isLoggedIn' && e.newValue === 'true') {
+        window.location.replace('https://vantritech.github.io/Shop/');
+    }
+});
