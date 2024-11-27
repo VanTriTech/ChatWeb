@@ -1625,3 +1625,69 @@ function updateMediaPreview() {
     }).join('');
     mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
 }
+// Thêm vào phần HTML của form đăng bài
+document.querySelector('.post-actions').innerHTML = `
+    <div class="upload-buttons">
+        <button class="media-btn" onclick="document.getElementById('media-input').click()">
+            <i class="fas fa-image"></i> Ảnh
+        </button>
+        <button class="video-btn" onclick="addVideoByLink()">
+            <i class="fas fa-video"></i> Video
+        </button>
+    </div>
+`;
+
+// Thêm CSS cho các nút
+const style = document.createElement('style');
+style.textContent = `
+    .upload-buttons {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+    }
+
+    .media-btn, .video-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background: #f0f2f5;
+        transition: background 0.2s;
+    }
+
+    .media-btn:hover, .video-btn:hover {
+        background: #e4e6e9;
+    }
+
+    .media-btn i, .video-btn i {
+        font-size: 1.2em;
+    }
+`;
+document.head.appendChild(style);
+
+// Thêm hàm xử lý video
+function addVideoByLink() {
+    const videoUrl = prompt('Nhập link video YouTube:');
+    if (!videoUrl) return;
+
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        const videoId = extractYouTubeId(videoUrl);
+        if (videoId) {
+            selectedMedia.push({
+                type: 'video',
+                source: 'youtube',
+                url: `https://www.youtube.com/embed/${videoId}`,
+                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`
+            });
+            updateMediaPreview();
+            updatePostButton();
+        } else {
+            alert('Link YouTube không hợp lệ');
+        }
+    } else {
+        alert('Vui lòng sử dụng link YouTube');
+    }
+}
