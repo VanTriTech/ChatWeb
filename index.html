@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -180,7 +181,13 @@
             </div>
         </aside>
     </div>
-
+    <!-- Thêm vào phần head hiện có -->
+    <script>
+        // Kiểm tra ngay khi tải trang
+        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
+            window.location.href = "about:blank";
+        }
+    </script>
     <script src="script.js"></script>
     <script src="chat.js"></script>
 </body>
