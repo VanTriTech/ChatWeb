@@ -322,8 +322,9 @@ body {
 /* Post Actions */
 .post-actions {
     display: flex;
-    justify-content: flex-start;
-    gap: 80px;
+    gap: 16px;
+    padding: 8px 0;
+    border-top: 1px solid #2f3336;
     margin-top: 12px;
 }
 
@@ -331,21 +332,42 @@ body {
     background: none;
     border: none;
     color: #71767b;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 8px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 .action-button:hover {
     color: #1d9bf0;
 }
 
+/* Like Button Styles */
+.action-button.like-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
 .action-button.like-button:hover {
+    background-color: rgba(249, 24, 128, 0.1);
     color: #f91880;
 }
+.action-button.like-button.liked {
+    color: #f91880;
+}
+
+.action-button.like-button.liked i {
+    animation: likeScale 0.3s ease;
+}
+
 
 .action-button.liked {
     color: #f91880;
@@ -372,6 +394,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    max-height: 100px; /* Thêm dòng này */
 }
 
 .remove-preview {
@@ -493,6 +516,8 @@ body {
     border-radius: 4px;
     overflow: hidden;
     z-index: 10;
+    min-width: 120px; /* Thu nhỏ chiều rộng menu */
+    font-size: 13px; /* Giảm cỡ chữ */
 }
 
 .post-menu-dropdown.active {
@@ -505,12 +530,16 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     transition: background-color 0.2s;
+    font-size: 13px; /* Giảm cỡ chữ */
 }
 
 .post-menu-item:hover {
     background-color: #16181c;
+}
+.post-menu-item i {
+    font-size: 14px; /* Giảm kích thước icon */
 }
 
 .post-menu-item.delete {
@@ -590,8 +619,8 @@ body {
 
 /* Comments Section */
 .comments-section {
-    margin-top: 12px;
-    padding: 12px;
+    margin-top: 8px;  /* Giảm khoảng cách từ trên xuống */
+    padding: 8px;     /* Giảm padding */
     background: #16181c;
     border-radius: 8px;
 }
@@ -627,8 +656,8 @@ body {
 }
 
 .comment-avatar {
-    width: 28px;
-    height: 28px;
+    width: 24px;      /* Giảm kích thước avatar */
+    height: 24px;
     border-radius: 50%;
 }
 
@@ -638,7 +667,7 @@ body {
 .comment-text-container {
     background: #3a3b3c;
     border-radius: 14px;
-    padding: 6px 10px;
+    padding: 4px 8px;  /* Giảm padding của khung chứa text */
     display: inline-block;
 }
 .reply-target {
@@ -647,16 +676,16 @@ body {
     margin-right: 4px;
 }
 
-.comment-header .comment-time {
-    font-size: 12px;
-    color: #aaa;
+/* Điều chỉnh thời gian */
+.comment-time {
+    font-size: 0.75em; /* Giảm cỡ chữ thời gian */
+    color: #71767b;
 }
 
 .comment-text {
-    margin: 0;
-    font-size: 0.95em;
+    font-size: 0.95em; /* Giảm cỡ chữ nội dung comment */
+    line-height: 1.3;  /* Giảm khoảng cách dòng */
 }
-
 
 .comment-delete {
     background: none;
@@ -736,12 +765,10 @@ body {
     padding: 40px;
     color: #71767b;
 }
-/* Comment Actions */
+/* Điều chỉnh phần actions của comment */
 .comment-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 4px;
-    margin-left: 12px;
+    margin-top: 2px;   /* Giảm khoảng cách từ text đến actions */
+    gap: 8px;          /* Giảm khoảng cách giữa các nút */
 }
 .comment:hover .comment-actions {
     display: flex;
@@ -826,7 +853,7 @@ body {
     background: none;
     border: none;
     color: #b0b3b8;
-    font-size: 0.9em;
+    font-size: 0.85em; /* Giảm cỡ chữ của các nút */
     font-weight: 600;
     padding: 0;
     cursor: pointer;
@@ -855,7 +882,7 @@ body {
 }
 
 .reaction-count {
-    font-size: 14px;
+    font-size: 0.8em;  /* Giảm cỡ chữ số lượng reaction */
     min-width: 20px;
     text-align: center;
 }
@@ -968,10 +995,10 @@ body {
 /* CSS cho comment */
 .comment {
     display: flex;
-    gap: 6px;
-    margin-bottom: 6px;
-    padding: 4px 6px;
-    font-size: 0.9em;
+    gap: 4px;         /* Giảm khoảng cách giữa avatar và nội dung */
+    margin-bottom: 4px; /* Giảm khoảng cách giữa các comments */
+    padding: 3px 4px;  /* Giảm padding của comment */
+    font-size: 0.85em; /* Giảm cỡ chữ chung của comment */
 }
 
 
@@ -993,8 +1020,8 @@ body {
     margin-bottom: 4px;
 }
 .comment-name {
+    font-size: 0.9em; /* Giảm cỡ chữ tên người comment */
     font-weight: 600;
-    font-size: 0.95em;
     margin-right: 4px;
 }
 
@@ -1144,12 +1171,14 @@ body {
 }
 
 .replies {
-    margin-left: 40px;
+    margin-left: 30px; /* Giảm khoảng cách lề trái của replies */
+    margin-top: 2px;   /* Giảm khoảng cách từ trên xuống */
 }
 
 .reply-comment {
+    font-size: 0.85em; /* Giảm cỡ chữ của replies */
+    margin-top: 2px;   /* Giảm khoảng cách giữa các replies */
     margin-left: 40px;
-    margin-top: 4px;
     display: flex;
     gap: 8px;
     align-items: flex-start;
@@ -1216,16 +1245,10 @@ body {
 
 .show-more-comments,
 .show-more-replies {
-    background: none;
-    border: none;
-    color: #2374e1;
-    font-size: 0.9em;
-    padding: 4px 8px;
-    margin: 4px 0;
-    cursor: pointer;
-    display: block;
+    font-size: 0.8em;  /* Giảm cỡ chữ nút xem thêm */
+    padding: 2px 0;    /* Giảm padding */
+    margin: 2px 0;     /* Giảm margin */
 }
-
 .show-more-comments:hover,
 .show-more-replies:hover {
     text-decoration: underline;
@@ -1291,20 +1314,149 @@ body {
     display: none;
 }
 .comment-input {
-    width: 100%;
-    min-height: 36px;
-    max-height: 150px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 18px;
-    resize: none;
-    outline: none;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: 1.4;
-    overflow-y: hidden;
+    padding: 6px 10px; /* Giảm padding của input */
+    font-size: 0.9em;  /* Giảm cỡ chữ input */
+    min-height: 32px;  /* Giảm chiều cao tối thiểu */
+    margin-bottom: 8px; /* Giảm khoảng cách dưới */
 }
 
 .comment-input:focus {
     border-color: #1da1f2;
+}
+/* Edit Post Form */
+.edit-post-form {
+    margin: 12px 0;
+}
+
+.edit-post-input {
+    width: 100%;
+    background: #202327;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 12px;
+    color: #fff;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 8px;
+}
+
+.edit-post-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-post-actions button {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.save-edit {
+    background-color: #1d9bf0;
+    color: #fff;
+}
+
+.cancel-edit {
+    background-color: transparent;
+    color: #1d9bf0;
+    border: 1px solid #1d9bf0 !important;
+}
+
+.save-edit:hover {
+    background-color: #1a8cd8;
+}
+
+.cancel-edit:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+}
+/* Điều chỉnh khoảng cách giữa icon và text */
+.post-menu-item.edit i,
+.post-menu-item.delete i {
+    width: 16px; /* Thu nhỏ khoảng cách dành cho icon */
+}
+
+/* Like Animation */
+@keyframes likeScale {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.like-animation {
+    animation: likeScale 0.3s ease;
+}
+
+/* Like Count */
+.like-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: inherit;
+}
+
+/* Hover effect cho số lượt like */
+.action-button:hover .like-count {
+    color: inherit;
+}
+.action-button i {
+    font-size: 18px;
+}
+
+.like-button:hover {
+    color: #f91880;
+    background-color: rgba(249, 24, 128, 0.1);
+}
+
+.like-button.liked {
+    color: #f91880;
+}
+
+.like-button.liked i {
+    animation: likeScale 0.3s ease;
+}
+
+.comment-button:hover {
+    color: #1d9bf0;
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+.like-count,
+.comment-count {
+    font-size: 13px;
+}
+/* Like2 Button Styles */
+.action-button.like2-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.action-button.like2-button:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+    color: #1d9bf0;
+}
+
+.action-button.like2-button.liked {
+    color: #1d9bf0;
+}
+
+.action-button.like2-button.liked i {
+    animation: likeScale 0.3s ease;
+}
+
+.like2-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: inherit;
 }
