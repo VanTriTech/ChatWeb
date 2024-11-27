@@ -204,6 +204,12 @@
             }
         });
     </script>
+        <script>
+        // Kiểm tra trạng thái đăng nhập
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+    </script>
     <script src="script.js"></script>
     <script src="chat.js"></script>
 </body>
