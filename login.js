@@ -253,9 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', async function() {
     const loginForm = document.getElementById('login-form');
 
-    // Xóa hết localStorage khi vào trang login
-    localStorage.clear();
-
     async function sha256(message) {
         const msgBuffer = new TextEncoder().encode(message);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -299,18 +296,16 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
 
-            // Đăng nhập thành công
             button.textContent = 'Đang đăng nhập...';
             button.disabled = true;
 
-            // Lưu thông tin đăng nhập
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('currentUser', user.displayName);
-            localStorage.setItem('userHash', hashedUsername);
-            localStorage.setItem('loginTime', Date.now().toString());
-
+            // Lưu session mới
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('currentUser', user.displayName);
+            sessionStorage.setItem('userHash', hashedUsername);
+            
             // Chuyển hướng
-            window.location.href = 'https://vantritech.github.io/Shop/index.html';
+            window.location.replace('https://vantritech.github.io/Shop/index.html');
 
         } catch (error) {
             console.error('Lỗi:', error);
