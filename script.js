@@ -920,19 +920,16 @@ window.editComment = function(postId, commentId) {
         });
     }
 };
-// Kiểm tra đăng nhập khi tải trang
+// Kiểm tra đăng nhập và URL khi tải trang
 document.addEventListener('DOMContentLoaded', () => {
     if (localStorage.getItem('isLoggedIn') !== 'true') {
-        // Chưa đăng nhập, chuyển hướng về login
-        window.location.href = '/Shop/login.html';
+        // Chưa đăng nhập, chuyển về trang login
+        window.location.replace('https://vantritech.github.io/Shop/login.html');
         return;
     }
     
-    // Đã đăng nhập nhưng URL không đúng format
-    if (window.location.pathname !== '/Shop/' && 
-        window.location.pathname !== '/Shop/index.html') {
-        window.location.href = '/Shop/';
-    }
+    // Kiểm tra và sửa URL nếu cần
+    normalizeURL();
 });
 
 // Sửa hàm handleLogout
@@ -940,7 +937,7 @@ function handleLogout() {
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('currentUser');
-        window.location.href = '/Shop/login.html';
+        window.location.replace('https://vantritech.github.io/Shop/login.html');
     }
 }
 // Thêm hàm xử lý reaction
