@@ -306,16 +306,31 @@ document.addEventListener('DOMContentLoaded', function() {
         menu.classList.toggle('active');
     }
 
-    window.deletePost = function(postId) {
-        if (confirm('Bạn có chắc muốn xóa bài đăng này?')) {
-            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-            const updatedPosts = posts.filter(p => p.id !== postId);
-            localStorage.setItem('posts', JSON.stringify(updatedPosts));
+window.deletePost = function(postId) {
+    if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        const postIndex = posts.findIndex(p => p.id === postId);
+        
+        if (postIndex !== -1) {
+            // Xóa post khỏi mảng
+            posts.splice(postIndex, 1);
             
-            const post = document.querySelector(`[data-post-id="${postId}"]`);
-            post.remove();
+            // Cập nhật localStorage
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            // Xóa post khỏi DOM
+            const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+            if (postElement) {
+                postElement.remove();
+            }
+          // Cập nhật lại tab Media
+            updateMediaTab();
+            
+            // Thông báo xóa thành công (tùy chọn)
+            console.log('Đã xóa bài viết thành công');
         }
     }
+};
 
     window.toggleLike = function(postId) {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
