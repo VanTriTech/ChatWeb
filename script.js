@@ -190,57 +190,77 @@ document.addEventListener('DOMContentLoaded', function() {
     // Media Upload Handler
 mediaInput.addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
-    const maxSize = 100 * 1024 * 1024; // 100MB cho video
     
     files.forEach(file => {
-        // Kiểm tra kích thước file
-        if (file.type.startsWith('image/') && file.size > 10 * 1024 * 1024) {
-            alert('Ảnh không được vượt quá 10MB');
+        // Chỉ cho phép upload ảnh
+        if (!file.type.startsWith('image/')) {
+            alert('Hiện tại chỉ hỗ trợ đăng ảnh. Vui lòng sử dụng link YouTube hoặc Vimeo cho video.');
             return;
         }
-        if (file.type.startsWith('video/') && file.size > maxSize) {
-            alert('Video không được vượt quá 100MB');
+
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit cho ảnh
+            alert('Ảnh không được vượt quá 10MB');
             return;
         }
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
-            
-            // Nếu là video, tạo thumbnail
-            if (mediaType === 'video') {
-                const video = document.createElement('video');
-                video.src = e.target.result;
-                video.onloadeddata = function() {
-                    // Tạo canvas để capture thumbnail
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
-                    selectedMedia.push({
-                        type: 'video',
-                        url: e.target.result,
-                        thumbnail: canvas.toDataURL('image/jpeg'),
-                        file: file
-                    });
-                    updateMediaPreview();
-                    updatePostButton();
-                };
-            } else {
-                selectedMedia.push({
-                    type: 'image',
-                    url: e.target.result,
-                    file: file
-                });
-                updateMediaPreview();
-                updatePostButton();
-            }
-        };
+            selectedMedia.push({
+                type: 'image',
+                url: e.target.result,
+                file: file
+            });
+            updateMediaPreview();
+            updatePostButton();
+        }
         reader.readAsDataURL(file);
     });
 });
+
+// Thêm hàm để xử lý video từ link
+function addVideoFromLink() {
+    const videoUrl = prompt('Nhập link video YouTube hoặc Vimeo:');
+    if (!videoUrl) return;
+
+    // Kiểm tra và lấy ID video
+    let videoId = '';
+    let videoType = '';
+
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        videoId = extractYouTubeId(videoUrl);
+        videoType = 'youtube';
+    } else if (videoUrl.includes('vimeo.com')) {
+        videoId = extractVimeoId(videoUrl);
+        videoType = 'vimeo';
+    }
+
+    if (videoId) {
+        selectedMedia.push({
+            type: 'video',
+            videoType: videoType,
+            videoId: videoId,
+            url: videoUrl
+        });
+        updateMediaPreview();
+        updatePostButton();
+    } else {
+        alert('Link video không hợp lệ. Vui lòng sử dụng link YouTube hoặc Vimeo.');
+    }
+}
+// Hàm trích xuất YouTube ID
+function extractYouTubeId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+// Hàm trích xuất Vimeo ID
+function extractVimeoId(url) {
+    const regExp = /vimeo\.com\/([0-9]+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+}
+
 
     // Update Media Preview
 function updateMediaPreview() {
@@ -767,15 +787,29 @@ function generateMediaGrid(mediaItems) {
 
     mediaItems.forEach((media, index) => {
         if (media.type === 'video') {
-            html += `
-                <div class="video-container">
-                    <video src="${media.url}" 
-                           controls 
-                           preload="metadata"
-                           poster="${media.thumbnail}">
-                    </video>
-                </div>
-            `;
+            if (media.videoType === 'youtube') {
+                html += `
+                    <div class="video-container">
+                        <iframe 
+                            src="https://www.youtube.com/embed/${media.videoId}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            } else if (media.videoType === 'vimeo') {
+                html += `
+                    <div class="video-container">
+                        <iframe 
+                            src="https://player.vimeo.com/video/${media.videoId}"
+                            frameborder="0"
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                `;
+            }
         } else {
             const imageData = encodeURIComponent(JSON.stringify(
                 mediaItems.filter(m => m.type === 'image').map(m => m.url)
