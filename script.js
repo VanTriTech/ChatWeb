@@ -211,43 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Thêm hàm xử lý video YouTube
-function addVideoFromLink() {
-    const videoUrl = prompt('Nhập link video YouTube:');
-    if (!videoUrl) return;
-
-    // Lấy video ID từ URL YouTube
-    const videoId = extractYouTubeId(videoUrl);
-    if (!videoId) {
-        alert('Link YouTube không hợp lệ!');
-        return;
-    }
-
-    // Tạo thumbnail và lưu thông tin video
-    const videoData = {
-        type: 'youtube',
-        url: videoUrl,
-        id: videoId,
-        thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-    };
-
-    selectedMedia.push(videoData);
-    updateMediaPreview();
-    updatePostButton();
-}
     // Update Media Preview
-function updateMediaPreview() {
-    mediaPreview.innerHTML = selectedMedia.map((media, index) => {
-        if (media.type === 'youtube') {
-            return `
-                <div class="preview-item youtube-preview">
-                    <img src="${media.thumbnail}" alt="YouTube Thumbnail">
-                    <i class="fab fa-youtube youtube-icon"></i>
-                    <button class="remove-preview" onclick="removeMedia(${index})">×</button>
-                </div>
-            `;
-        }
-        return `
+    function updateMediaPreview() {
+        mediaPreview.innerHTML = selectedMedia.map((media, index) => `
             <div class="preview-item">
                 ${media.type === 'image' 
                     ? `<img src="${media.url}" alt="Preview">`
@@ -255,10 +221,9 @@ function updateMediaPreview() {
                 }
                 <button class="remove-preview" onclick="removeMedia(${index})">×</button>
             </div>
-        `;
-    }).join('');
-    mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
-}
+        `).join('');
+        mediaPreview.style.display = selectedMedia.length ? 'grid' : 'none';
+    }
 
     // Remove Media
     window.removeMedia = function(index) {
