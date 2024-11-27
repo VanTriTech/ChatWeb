@@ -266,10 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add post to DOM
         addPostToDOM(post);
-        // Cập nhật tab Media nếu có ảnh
-    if (selectedMedia.length > 0) {
-        updateMediaTab(selectedMedia);
-    }
 
         // Save to localStorage
         savePost(post);
@@ -382,25 +378,17 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    // Sắp xếp posts từ mới đến cũ
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Xóa nội dung cũ
-    postsContainer.innerHTML = '';
-    
-    // Thêm posts mới
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
         
         // Setup collapse cho replies của mỗi comment
-        post.comments?.forEach(comment => {
+        post.comments.forEach(comment => {
             if (comment.replies && comment.replies.length > 0) {
                 setupReplyCollapse(comment.id);
             }
         });
     });
-    
     restoreCommentStates();
     restoreReactionStates();
 }
@@ -583,14 +571,8 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm post mới vào đầu mảng
-    
-    try {
-        localStorage.setItem('posts', JSON.stringify(posts));
-        console.log('Post saved successfully:', post);
-    } catch (error) {
-        console.error('Error saving post:', error);
-    }
+    posts.unshift(post);
+    localStorage.setItem('posts', JSON.stringify(posts));
 }
 
 
@@ -1051,6 +1033,13 @@ function restoreReactionStates() {
     });
 }
 
+// Cập nhật hàm loadPosts để gọi restoreReactionStates
+function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.forEach(post => addPostToDOM(post));
+    restoreCommentStates();
+    restoreReactionStates(); // Thêm dòng này
+}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
@@ -1490,17 +1479,11 @@ function updateMediaTab() {
     
     // Lọc tất cả media từ các bài đăng
     const allMedia = posts.reduce((acc, post) => {
-        if (
-            post.media && 
-            post.media.length && 
-            post.content && 
-            post.content.includes("@LanYouJin")
-        ) {
+        if (post.media && post.media.length) {
             acc.push(...post.media.map(media => ({
                 ...media,
                 postId: post.id,
-                timestamp: post.timestamp,
-                content: post.content // Thêm nội dung để có thể hiển thị caption nếu cần
+                timestamp: post.timestamp
             })));
         }
         return acc;
@@ -1510,24 +1493,22 @@ function updateMediaTab() {
     allMedia.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
     // Tạo grid hiển thị media
+    const mediaGrid = document.createElement('div');
+    mediaGrid.className = 'post-media multiple-images';
+    
+    // Tạo HTML cho từng media item
     const mediaHTML = allMedia.map(media => {
         if (media.type === 'image') {
             const imageData = encodeURIComponent(JSON.stringify([media]));
             return `
                 <div class="image-container" onclick="openImageModal('${media.url}', 0, '${imageData}')">
                     <img src="${media.url}" alt="Media content">
-                    <div class="media-overlay">
-                        <span class="media-tag">@LanYouJin</span>
-                    </div>
                 </div>
             `;
         } else if (media.type === 'video') {
             return `
                 <div class="video-container">
                     <video src="${media.url}" controls></video>
-                    <div class="media-overlay">
-                        <span class="media-tag">@LanYouJin</span>
-                    </div>
                 </div>
             `;
         }
@@ -1541,6 +1522,6 @@ function updateMediaTab() {
     if (allMedia.length > 0) {
         mediaSection.appendChild(mediaGrid);
     } else {
-        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media!</div>';
     }
 }
