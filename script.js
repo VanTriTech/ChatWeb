@@ -211,6 +211,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Thêm hàm để cập nhật tab Media
+function updateMediaTab() {
+    const mediaSection = document.getElementById('media-section');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     // Update Media Preview
     function updateMediaPreview() {
         mediaPreview.innerHTML = selectedMedia.map((media, index) => `
