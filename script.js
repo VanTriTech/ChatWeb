@@ -398,7 +398,7 @@ function loadPosts() {
     
     // Sắp xếp posts theo thời gian mới nhất
     posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+function addPostToDOM(post) {
     // Thêm posts vào đầu container
     posts.forEach(post => {
         const postElement = createPostElement(post);
