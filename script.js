@@ -1472,12 +1472,12 @@ function addLike2Animation(button) {
         thumbsUp.classList.remove('like-animation');
     }, 500);
 }
-// Thêm hàm để cập nhật tab Media
+    // Lọc các bài đăng có chứa "@LanYouJin" trong nội dung chính của post (không tính comments)
     const allMedia = posts.reduce((acc, post) => {
-        // Kiểm tra nội dung post có chứa @LanYouJin (không phân biệt hoa thường)
+        // Kiểm tra nội dung chính của post có chứa @LanYouJin
+        const postContent = post.content || '';
         if (
-            post.content && 
-            post.content.toLowerCase().includes("@lanyoujin") &&
+            postContent.toLowerCase().includes("@lanyoujin") &&
             post.media && 
             post.media.length > 0
         ) {
@@ -1535,6 +1535,6 @@ function addLike2Animation(button) {
     if (allMedia.length > 0) {
         mediaSection.appendChild(mediaGrid);
     } else {
-        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media!</div>';
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
