@@ -720,7 +720,7 @@ function addPostToDOM(post) {
         </div>
     `;
 
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    return postElement;
 }
 
 
