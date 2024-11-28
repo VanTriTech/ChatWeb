@@ -393,20 +393,37 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Sắp xếp posts theo thời gian mới nhất
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Thay đổi cách thêm post vào container
+    const postsContainer = document.getElementById('posts-container');
+    if (postsContainer.firstChild) {
+        postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    } else {
+        postsContainer.appendChild(postElement);
+    }
+    updateMediaTab();
+}
+    
+    // Thêm lại posts theo thứ tự mới
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
         
         // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
+        post.comments?.forEach(comment => {
             if (comment.replies && comment.replies.length > 0) {
                 setupReplyCollapse(comment.id);
             }
         });
     });
+    
     restoreCommentStates();
     restoreReactionStates();
 }
+
 
 
 // Thay đổi phần xử lý comment input
@@ -584,12 +601,17 @@ function formatTime(timestamp) {
     return date.toLocaleDateString('vi-VN');
 }
 
+// Sửa lại hàm savePost
 function savePost(post) {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
-    localStorage.setItem('posts', JSON.stringify(posts));
+    try {
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        posts.unshift(post); // Thêm post mới vào đầu mảng
+        localStorage.setItem('posts', JSON.stringify(posts));
+    } catch (error) {
+        console.error('Error saving post:', error);
+        throw new Error('Failed to save post');
+    }
 }
-
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
