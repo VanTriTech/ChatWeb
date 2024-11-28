@@ -263,6 +263,9 @@ document.addEventListener('DOMContentLoaded', function() {
         comments: [],
         timestamp: new Date().toISOString()
     };
+    // Thêm 2 dòng này vào đây
+    const postElement = addPostToDOM(post);
+    postsContainer.insertBefore(postElement, postsContainer.firstChild);
 
 
         // Add post to DOM
