@@ -1066,34 +1066,12 @@ function restoreReactionStates() {
     });
 }
 
+// Cập nhật hàm loadPosts để gọi restoreReactionStates
 function loadPosts() {
-    try {
-        // Lấy posts từ localStorage
-        let posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        
-        // Sắp xếp posts theo thời gian mới nhất
-        posts.sort((a, b) => {
-            const timeA = new Date(a.timestamp || 0);
-            const timeB = new Date(b.timestamp || 0);
-            return timeB - timeA;
-        });
-        
-        // Xóa nội dung cũ
-        const postsContainer = document.getElementById('posts-container');
-        if (postsContainer) {
-            postsContainer.innerHTML = '';
-            
-            // Thêm các bài đăng đã sắp xếp
-            posts.forEach(post => {
-                if (post && post.id) {  // Kiểm tra post hợp lệ
-                    addPostToDOM(post);
-                }
-            });
-        }
-        
-    } catch (error) {
-        console.error('Lỗi khi tải posts:', error);
-    }
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.forEach(post => addPostToDOM(post));
+    restoreCommentStates();
+    restoreReactionStates(); // Thêm dòng này
 }
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
