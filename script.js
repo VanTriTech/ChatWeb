@@ -240,31 +240,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-async function createPost() {
-    const content = postInput.value.trim();
-    if (!content && selectedMedia.length === 0) return;
+    async function createPost() {
+        const content = postInput.value.trim();
+        if (!content && selectedMedia.length === 0) return;
 
-    const postId = Date.now();
-    const post = {
-        id: postId,
-        content: content,
-        author: {
-            name: profileName,
-            username: profileUsername,
-            avatar: document.querySelector('.profile-avatar img').src
-        },
-        media: selectedMedia,
-        reactions: {
-            likes: 0,
-            hearts: 0,
-            angry: 0
-        },
-        userReactions: {},
-        comments: [],
-        timestamp: new Date().toISOString()
-    };
+        const postId = Date.now();
+        const post = {
+            id: postId,
+            content: content,
+            author: {
+                name: profileName,
+                username: profileUsername,
+                avatar: document.querySelector('.profile-avatar img').src
+            },
+            media: selectedMedia,
+            reactions: {
+                likes: 0,
+                hearts: 0,
+                angry: 0
+            },
+            userReactions: {}, // Lưu reaction của từng user
+            comments: [],
+            timestamp: new Date().toISOString()
+        };
+
         // Add post to DOM
         addPostToDOM(post);
+
+        // Save to localStorage
+        savePost(post);
 
         // Reset form
         postInput.value = '';
