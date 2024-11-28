@@ -378,18 +378,10 @@ function restoreCommentStates() {
 function loadPosts() {
     try {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        
-        // Sắp xếp posts theo thời gian mới nhất trước khi render
-        posts.sort((a, b) => {
-            return new Date(b.timestamp) - new Date(a.timestamp);
-        });
-
-        // Xóa nội dung cũ
         const postsContainer = document.getElementById('posts-container');
+        
         if (postsContainer) {
             postsContainer.innerHTML = '';
-            
-            // Render posts theo thứ tự đã sắp xếp
             posts.forEach(post => {
                 if (post && post.id) {
                     addPostToDOM(post);
@@ -405,7 +397,6 @@ function loadPosts() {
             });
         }
 
-        // Khôi phục các trạng thái
         restoreCommentStates();
         restoreReactionStates();
         
@@ -413,7 +404,6 @@ function loadPosts() {
         console.error('Lỗi khi tải posts:', error);
     }
 }
-
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
     const input = event.target;
@@ -591,9 +581,10 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);  // Thay vì posts.push(post)
+    posts.unshift(post);  // Thêm bài viết mới vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 }
+
 
 
 // Khai báo biến global cho image modal
