@@ -240,11 +240,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-async function createPost() {
-    const content = postInput.value.trim();
-    if (!content && selectedMedia.length === 0) return;
+    async function createPost() {
+        const content = postInput.value.trim();
+        if (!content && selectedMedia.length === 0) return;
 
-    try {
         const postId = Date.now();
         const post = {
             id: postId,
@@ -254,18 +253,13 @@ async function createPost() {
                 username: profileUsername,
                 avatar: document.querySelector('.profile-avatar img').src
             },
-            // Đảm bảo copy toàn bộ thông tin media
-            media: selectedMedia.map(media => ({
-                type: media.type,
-                url: media.url,
-                // Thêm các thuộc tính khác nếu cần
-            })),
+            media: selectedMedia,
             reactions: {
                 likes: 0,
                 hearts: 0,
                 angry: 0
             },
-            userReactions: {},
+            userReactions: {}, // Lưu reaction của từng user
             comments: [],
             timestamp: new Date().toISOString()
         };
@@ -337,34 +331,6 @@ window.deletePost = function(postId) {
         }
     }
 };
-        // Kiểm tra dữ liệu trước khi lưu
-        console.log('Saving post:', post);
-        // Thêm try-catch cho việc lưu localStorage
-        try {
-            // Add post to DOM
-            addPostToDOM(post);
-            // Save to localStorage
-            savePost(post);
-        } catch (error) {
-            console.error('Error saving post:', error);
-            alert('Có lỗi xảy ra khi lưu bài đăng. Vui lòng thử lại.');
-            return;
-        }
-
-        // Reset form
-        postInput.value = '';
-        postInput.style.height = 'auto';
-        selectedMedia = [];
-        mediaPreview.style.display = 'none';
-        mediaPreview.innerHTML = '';
-        mediaInput.value = '';
-        updatePostButton();
-        
-    } catch (error) {
-        console.error('Error creating post:', error);
-        alert('Có lỗi xảy ra khi tạo bài đăng. Vui lòng thử lại.');
-    }
-}
 
     window.toggleLike = function(postId) {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -424,7 +390,23 @@ function restoreCommentStates() {
     });
 }
 
+// Sửa lại hàm loadPosts
 function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.forEach(post => {
+        addPostToDOM(post);
+        setupCommentCollapse(post.id);
+        
+        // Setup collapse cho replies của mỗi comment
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
+    });
+    restoreCommentStates();
+    restoreReactionStates();
+}
 
 
 // Thay đổi phần xử lý comment input
@@ -1577,4 +1559,3 @@ function updateMediaTab() {
         mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
- 
