@@ -375,25 +375,50 @@ function restoreCommentStates() {
     });
 }
 
-// Sửa lại hàm loadPosts
 function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
+    try {
+    const postsContainer = document.getElementById('posts-container');
+    const posts = Array.from(postsContainer.children);
+        const insertIndex = posts.findIndex(existingPost => {
+        const existingTime = new Date(existingPost.getAttribute('data-timestamp'));
+        const newTime = new Date(post.timestamp);
+        return newTime > existingTime;
     });
-    restoreCommentStates();
-    restoreReactionStates();
+
+    if (insertIndex === -1) {
+        postsContainer.appendChild(postElement);
+    } else {
+        postsContainer.insertBefore(postElement, posts[insertIndex]);
+    }
 }
+        
+        if (postsContainer) {
+            postsContainer.innerHTML = '';
+            // Sắp xếp posts theo thời gian mới nhất
+            posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            posts.forEach(post => {
+                if (post && post.id) {
+                    addPostToDOM(post);
+                    setupCommentCollapse(post.id);
+                    if (post.comments) {
+                        post.comments.forEach(comment => {
+                            if (comment.replies && comment.replies.length > 0) {
+                                setupReplyCollapse(comment.id);
+                            }
+                        });
+                    }
+                }
+            });
+        }
 
-
+        restoreCommentStates();
+        restoreReactionStates();
+        
+    } catch (error) {
+        console.error('Lỗi khi tải posts:', error);
+    }
+}
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
     const input = event.target;
@@ -571,9 +596,10 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post);  // Thêm bài viết mới vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 }
+
 
 
 // Khai báo biến global cho image modal
@@ -584,6 +610,7 @@ function addPostToDOM(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
     postElement.setAttribute('data-post-id', post.id);
+    postElement.setAttribute('data-timestamp', post.timestamp);
 
     const mediaHTML = post.media && post.media.length ? generateMediaGrid(post.media) : '';
     const commentsHTML = post.comments ? post.comments.map(comment => `
@@ -1032,13 +1059,6 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
-    restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
