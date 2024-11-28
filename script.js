@@ -241,44 +241,49 @@ document.addEventListener('DOMContentLoaded', function() {
     postButton.addEventListener('click', createPost);
 
     async function createPost() {
-        const content = postInput.value.trim();
-        if (!content && selectedMedia.length === 0) return;
+    const content = postInput.value.trim();
+    if (!content && selectedMedia.length === 0) return;
 
-        const postId = Date.now();
-        const post = {
-            id: postId,
-            content: content,
-            author: {
-                name: profileName,
-                username: profileUsername,
-                avatar: document.querySelector('.profile-avatar img').src
-            },
-            media: selectedMedia,
-            reactions: {
-                likes: 0,
-                hearts: 0,
-                angry: 0
-            },
-            userReactions: {}, // Lưu reaction của từng user
-            comments: [],
-            timestamp: new Date().toISOString()
-        };
+    const postId = Date.now();
+    const post = {
+        id: postId,
+        content: content,
+        author: {
+            name: profileName,
+            username: profileUsername,
+            avatar: document.querySelector('.profile-avatar img').src
+        },
+        media: selectedMedia,
+        reactions: {
+            likes: 0,
+            hearts: 0,
+            angry: 0
+        },
+        userReactions: {},
+        comments: [],
+        timestamp: new Date().toISOString()
+    };
+    // Thêm post vào localStorage trước
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.unshift(post);
+    localStorage.setItem('posts', JSON.stringify(posts));
+
 
         // Add post to DOM
-        addPostToDOM(post);
+    addPostToDOM(post);
 
         // Save to localStorage
         savePost(post);
 
-        // Reset form
-        postInput.value = '';
-        postInput.style.height = 'auto';
-        selectedMedia = [];
-        mediaPreview.style.display = 'none';
-        mediaPreview.innerHTML = '';
-        mediaInput.value = '';
-        updatePostButton();
-    }
+    // Reset form
+    postInput.value = '';
+    postInput.style.height = 'auto';
+    selectedMedia = [];
+    mediaPreview.style.display = 'none';
+    mediaPreview.innerHTML = '';
+    mediaInput.value = '';
+    updatePostButton();
+}
 
 
     // Initialize Video Players
@@ -377,20 +382,22 @@ function restoreCommentStates() {
 
 // Sửa lại hàm loadPosts
 function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    let posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
     // Sắp xếp posts theo timestamp từ mới đến cũ
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    posts = posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
-    // Xóa hết posts hiện tại trong container
+    // Lưu lại mảng đã sắp xếp
+    localStorage.setItem('posts', JSON.stringify(posts));
+    
+    // Xóa hết posts hiện tại
     postsContainer.innerHTML = '';
     
-    // Thêm lại posts theo thứ tự đã sắp xếp
+    // Thêm lại posts theo thứ tự mới nhất
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
         
-        // Setup collapse cho replies của mỗi comment
         if (post.comments) {
             post.comments.forEach(comment => {
                 if (comment.replies && comment.replies.length > 0) {
@@ -403,7 +410,6 @@ function loadPosts() {
     restoreCommentStates();
     restoreReactionStates();
 }
-
 
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
@@ -732,7 +738,11 @@ function addPostToDOM(post) {
         </div>
     `;
 
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    if (postsContainer.firstChild) {
+        postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    } else {
+        postsContainer.appendChild(postElement);
+    }
 }
 
 
