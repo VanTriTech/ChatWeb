@@ -1069,22 +1069,9 @@ function restoreReactionStates() {
 // Cập nhật hàm loadPosts để gọi restoreReactionStates
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Xóa nội dung cũ
-    const postsContainer = document.getElementById('posts-container');
-    postsContainer.innerHTML = '';
-    
-    // Thêm các bài đăng đã sắp xếp vào DOM
-    posts.forEach(post => {
-        addPostToDOM(post);
-    });
-    
-    // Khôi phục trạng thái
+    posts.forEach(post => addPostToDOM(post));
     restoreCommentStates();
-    restoreReactionStates();
+    restoreReactionStates(); // Thêm dòng này
 }
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
