@@ -240,33 +240,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-async function createPost() {
-    const content = postInput.value.trim();
-    if (!content && selectedMedia.length === 0) return;
+    async function createPost() {
+        const content = postInput.value.trim();
+        if (!content && selectedMedia.length === 0) return;
 
-    const postId = Date.now();
-    const post = {
-        id: postId,
-        content: content,
-        author: {
-            name: profileName,
-            username: profileUsername,
-            avatar: document.querySelector('.profile-avatar img').src
-        },
-        media: selectedMedia,
-        reactions: {
-            likes: 0,
-            hearts: 0,
-            angry: 0
-        },
-        userReactions: {},
-        comments: [],
-        timestamp: new Date().toISOString()
-    };
+        const postId = Date.now();
+        const post = {
+            id: postId,
+            content: content,
+            author: {
+                name: profileName,
+                username: profileUsername,
+                avatar: document.querySelector('.profile-avatar img').src
+            },
+            media: selectedMedia,
+            reactions: {
+                likes: 0,
+                hearts: 0,
+                angry: 0
+            },
+            userReactions: {}, // Lưu reaction của từng user
+            comments: [],
+            timestamp: new Date().toISOString()
+        };
 
         // Add post to DOM
         addPostToDOM(post);
 
+        // Save to localStorage
+        savePost(post);
 
         // Reset form
         postInput.value = '';
@@ -573,13 +575,17 @@ window.autoResizeTextarea = function(element) {
   // Utility Functions
 function formatTime(timestamp) {
     const date = new Date(timestamp);
-    const now = new Date();
-    const diff = (now - date) / 1000; // seconds
     
-    if (diff < 60) return 'Vừa xong';
-    if (diff < 3600) return `${Math.floor(diff / 60)} phút`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ`;
-    return date.toLocaleDateString('vi-VN');
+    // Định dạng ngày tháng theo kiểu Việt Nam
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    
+    return date.toLocaleDateString('vi-VN', options);
 }
 
 function savePost(post) {
@@ -587,9 +593,7 @@ function savePost(post) {
     posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
-    // Thêm post vào DOM
-    const postElement = addPostToDOM(post);
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
+
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
