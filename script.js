@@ -574,16 +574,18 @@ window.autoResizeTextarea = function(element) {
 function formatTime(timestamp) {
     const date = new Date(timestamp);
     
-    // Định dạng ngày tháng theo kiểu Việt Nam
-    const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // getMonth() trả về 0-11
+    const year = date.getFullYear();
     
-    return date.toLocaleDateString('vi-VN', options);
+    // Định dạng giờ:phút
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    
+    // Thêm số 0 phía trước nếu phút < 10
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    
+    return `${day} tháng ${month} năm ${year} lúc ${hours}:${minutes}`;
 }
 
 function savePost(post) {
