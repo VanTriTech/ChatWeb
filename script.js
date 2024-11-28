@@ -375,24 +375,44 @@ function restoreCommentStates() {
     });
 }
 
-// Sửa lại hàm loadPosts
 function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
+    try {
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
         
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
+        // Sắp xếp posts theo thời gian mới nhất trước khi render
+        posts.sort((a, b) => {
+            return new Date(b.timestamp) - new Date(a.timestamp);
         });
-    });
-    restoreCommentStates();
-    restoreReactionStates();
-}
 
+        // Xóa nội dung cũ
+        const postsContainer = document.getElementById('posts-container');
+        if (postsContainer) {
+            postsContainer.innerHTML = '';
+            
+            // Render posts theo thứ tự đã sắp xếp
+            posts.forEach(post => {
+                if (post && post.id) {
+                    addPostToDOM(post);
+                    setupCommentCollapse(post.id);
+                    if (post.comments) {
+                        post.comments.forEach(comment => {
+                            if (comment.replies && comment.replies.length > 0) {
+                                setupReplyCollapse(comment.id);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // Khôi phục các trạng thái
+        restoreCommentStates();
+        restoreReactionStates();
+        
+    } catch (error) {
+        console.error('Lỗi khi tải posts:', error);
+    }
+}
 
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
@@ -571,7 +591,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post);  // Thay vì posts.push(post)
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -1032,13 +1052,6 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
-    restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
