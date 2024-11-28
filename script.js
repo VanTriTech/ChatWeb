@@ -571,6 +571,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    // Thay đổi từ push thành unshift để thêm vào đầu mảng
     posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
