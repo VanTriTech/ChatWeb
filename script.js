@@ -396,10 +396,6 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
@@ -1559,4 +1555,3 @@ function updateMediaTab() {
         mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
-Đây là script.js hiện tại
