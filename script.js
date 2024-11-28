@@ -353,7 +353,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Lưu trạng thái hiển thị vào localStorage
         const commentStates = JSON.parse(localStorage.getItem('commentStates') || '{}');
-        commentStates[postId] = isHidden;
         localStorage.setItem('commentStates', JSON.stringify(commentStates));
     };
 // Thêm hiệu ứng animation khi like
@@ -375,25 +374,24 @@ function restoreCommentStates() {
     });
 }
 
+// Sửa lỗi đóng function loadPosts()
 function loadPosts() {
     try {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const postsContainer = document.getElementById('posts-container');
-    if (postsContainer.firstChild) {
-        postsContainer.insertBefore(postElement, postsContainer.firstChild);
-    } else {
-        postsContainer.appendChild(postElement);
+        const postsContainer = document.getElementById('posts-container');
+        
+        if (postsContainer) {
+            postsContainer.innerHTML = '';
+            posts.forEach(post => {
+                if (post && post.id) {
+                    addPostToDOM(post);
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Lỗi khi tải posts:', error);
     }
-    // Khởi tạo các tính năng sau khi thêm post
-    setupCommentCollapse(post.id);
-    if (post.comments) {
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
-    }
-}
+} // Thiếu dấu đóng ngoặc này
 
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
@@ -729,7 +727,7 @@ function addPostToDOM(post) {
 
 // Xóa định nghĩa cũ của generateMediaGrid và chỉ giữ lại phiên bản này
 function generateMediaGrid(mediaItems) {
-        if (!mediaItems.length) return '';
+    if (!mediaItems || !mediaItems.length) retu
 
         const imageItems = mediaItems.filter(item => item.type === 'image');
         const videoItems = mediaItems.filter(item => item.type === 'video');
