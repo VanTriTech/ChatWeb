@@ -240,47 +240,45 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-async function createPost() {
-    const content = postInput.value.trim();
-    if (!content && selectedMedia.length === 0) return;
+    async function createPost() {
+        const content = postInput.value.trim();
+        if (!content && selectedMedia.length === 0) return;
 
-    const postId = Date.now();
-    const post = {
-        id: postId,
-        content: content,
-        author: {
-            name: profileName,
-            username: profileUsername,
-            avatar: document.querySelector('.profile-avatar img').src
-        },
-        media: selectedMedia,
-        reactions: {
-            likes: 0,
-            hearts: 0,
-            angry: 0
-        },
-        userReactions: {},
-        comments: [],
-        timestamp: new Date().toISOString()
-    };
+        const postId = Date.now();
+        const post = {
+            id: postId,
+            content: content,
+            author: {
+                name: profileName,
+                username: profileUsername,
+                avatar: document.querySelector('.profile-avatar img').src
+            },
+            media: selectedMedia,
+            reactions: {
+                likes: 0,
+                hearts: 0,
+                angry: 0
+            },
+            userReactions: {}, // Lưu reaction của từng user
+            comments: [],
+            timestamp: new Date().toISOString()
+        };
 
-    // Thêm post vào DOM và đặt ở đầu danh sách
-    const postElement = addPostToDOM(post);
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
+        // Add post to DOM
+        addPostToDOM(post);
 
-    // Reset form
-    postInput.value = '';
-    postInput.style.height = 'auto';
-    selectedMedia = [];
-    mediaPreview.style.display = 'none';
-    mediaPreview.innerHTML = '';
-    mediaInput.value = '';
-    updatePostButton();
-    
-    if (content.toLowerCase().includes('@lanyoujin')) {
-        updateMediaTab();
+        // Save to localStorage
+        savePost(post);
+
+        // Reset form
+        postInput.value = '';
+        postInput.style.height = 'auto';
+        selectedMedia = [];
+        mediaPreview.style.display = 'none';
+        mediaPreview.innerHTML = '';
+        mediaInput.value = '';
+        updatePostButton();
     }
-}
 
 
     // Initialize Video Players
@@ -588,22 +586,10 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm post mới vào đầu mảng
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
-    // Lưu vào localStorage trước
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm post mới vào đầu mảng
-    localStorage.setItem('posts', JSON.stringify(posts));
 
-    // Xóa nội dung cũ của container
-    postsContainer.innerHTML = '';
-    
-    // Load lại tất cả posts
-    posts.forEach(p => {
-        const postElement = addPostToDOM(p);
-        postsContainer.appendChild(postElement);
-    });
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
@@ -748,8 +734,9 @@ function addPostToDOM(post) {
             </div>
         </div>
     `;
+
+    postsContainer.insertBefore(postElement, postsContainer.firstChild);
     updateMediaTab();
-    return postElement;
 }
 
 
