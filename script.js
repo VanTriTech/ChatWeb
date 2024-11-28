@@ -241,28 +241,29 @@ document.addEventListener('DOMContentLoaded', function() {
     postButton.addEventListener('click', createPost);
 
     async function createPost() {
-        const content = postInput.value.trim();
-        if (!content && selectedMedia.length === 0) return;
+    const content = postInput.value.trim();
+    if (!content && selectedMedia.length === 0) return;
 
-        const postId = Date.now();
-        const post = {
-            id: postId,
-            content: content,
-            author: {
-                name: profileName,
-                username: profileUsername,
-                avatar: document.querySelector('.profile-avatar img').src
-            },
-            media: selectedMedia,
-            reactions: {
-                likes: 0,
-                hearts: 0,
-                angry: 0
-            },
-            userReactions: {}, // Lưu reaction của từng user
-            comments: [],
-            timestamp: new Date().toISOString()
-        };
+    const postId = Date.now();
+    const post = {
+        id: postId,
+        content: content,
+        author: {
+            name: profileName,
+            username: profileUsername,
+            avatar: document.querySelector('.profile-avatar img').src
+        },
+        media: selectedMedia,
+        reactions: {
+            likes: 0,
+            hearts: 0,
+            angry: 0
+        },
+        userReactions: {},
+        comments: [],
+        timestamp: new Date().toISOString()
+    };
+
 
         // Add post to DOM
         addPostToDOM(post);
@@ -586,7 +587,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post); // Thêm vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -594,7 +595,6 @@ function savePost(post) {
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
 let currentImages = [];
-
 function addPostToDOM(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
@@ -735,8 +735,7 @@ function addPostToDOM(post) {
         </div>
     `;
 
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
-    updateMediaTab();
+    return postElement;
 }
 
 
