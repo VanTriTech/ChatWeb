@@ -398,7 +398,7 @@ function loadPosts() {
     postsContainer.innerHTML = '';
     
     // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    posts.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     
     posts.forEach(post => {
         addPostToDOM(post);
