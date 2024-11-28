@@ -240,7 +240,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-    async function createPost() {
+// Sửa hàm createPost
+async function createPost() {
     const content = postInput.value.trim();
     if (!content && selectedMedia.length === 0) return;
 
@@ -272,8 +273,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add post to DOM
     addPostToDOM(post);
 
-        // Save to localStorage
-        savePost(post);
+    // Chỉ lưu post một lần thông qua hàm savePost
+    savePost(post);
 
     // Reset form
     postInput.value = '';
@@ -385,10 +386,7 @@ function loadPosts() {
     let posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
     // Sắp xếp posts theo timestamp từ mới đến cũ
-    posts = posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Lưu lại mảng đã sắp xếp
-    localStorage.setItem('posts', JSON.stringify(posts));
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
     // Xóa hết posts hiện tại
     postsContainer.innerHTML = '';
@@ -589,9 +587,10 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm vào đầu mảng thay vì push
+    posts.unshift(post); // Thêm vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 }
+
 
 
 // Khai báo biến global cho image modal
