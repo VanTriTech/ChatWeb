@@ -1481,8 +1481,9 @@ body {
 /* Cập nhật style cho tab Media */
 #media-section .post-media {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Thay đổi thành 3 cột cố định */
-    gap: 16px; /* Tăng khoảng cách giữa các ảnh */
+    grid-template-columns: repeat(auto-fill, minmax(calc(33.333% - 16px), 1fr));
+    /* hoặc có thể dùng: grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+    gap: 16px;
     padding: 16px;
     max-width: 100%;
 }
