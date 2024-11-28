@@ -571,18 +571,19 @@ window.autoResizeTextarea = function(element) {
     commentCount.textContent = post.comments.length;
 }
 
-    // Utility Functions
-  // Utility Functions
 function formatTime(timestamp) {
     const date = new Date(timestamp);
-    const now = new Date();
-    const diff = (now - date) / 1000; // seconds
     
-    if (diff < 60) return 'Vừa xong';
-    if (diff < 3600) return `${Math.floor(diff / 60)} phút`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)} giờ`;
+    // Định dạng ngày tháng theo kiểu Việt Nam
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    
     return date.toLocaleDateString('vi-VN', options);
-
 }
 
 function savePost(post) {
