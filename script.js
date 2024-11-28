@@ -395,7 +395,7 @@ function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
     // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    posts.sort((a, b) => b.id - a.id); // Sử dụng id thay vì timestamp
     
     // Xóa tất cả posts hiện tại
     const postsContainer = document.getElementById('posts-container');
@@ -597,7 +597,7 @@ function formatTime(timestamp) {
 function savePost(post) {
     try {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        posts.push(post); // Thay đổi từ unshift sang push
+        posts.unshift(post); // Sử dụng unshift để thêm vào đầu mảng
         localStorage.setItem('posts', JSON.stringify(posts));
     } catch (error) {
         console.error('Error saving post:', error);
