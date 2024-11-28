@@ -244,48 +244,48 @@ async function createPost() {
     const content = postInput.value.trim();
     if (!content && selectedMedia.length === 0) return;
 
-    const post = {
-        id: Date.now(), // Sử dụng timestamp làm id
-        content: content,
-        author: {
-            name: profileName,
-            username: profileUsername,
-            avatar: document.querySelector('.profile-avatar img').src
-        },
-        media: selectedMedia.map(media => ({
-            type: media.type,
-            url: media.url
-        })),
-        reactions: {
-            likes: 0,
-            hearts: 0,
-            angry: 0
-        },
-        userReactions: {},
-        comments: [],
-        timestamp: new Date().toISOString()
-    };
+    try {
+        const postId = Date.now();
+        const post = {
+            id: postId,
+            content: content,
+            author: {
+                name: profileName,
+                username: profileUsername,
+                avatar: document.querySelector('.profile-avatar img').src
+            },
+            // Đảm bảo copy toàn bộ thông tin media
+            media: selectedMedia.map(media => ({
+                type: media.type,
+                url: media.url,
+                // Thêm các thuộc tính khác nếu cần
+            })),
+            reactions: {
+                likes: 0,
+                hearts: 0,
+                angry: 0
+            },
+            userReactions: {},
+            comments: [],
+            timestamp: new Date().toISOString()
+        };
 
-    // Thêm post vào đầu container
-    const postsContainer = document.getElementById('posts-container');
-    const firstPost = postsContainer.firstChild;
-    addPostToDOM(post);
-    if (firstPost) {
-        postsContainer.insertBefore(postsContainer.lastChild, firstPost);
+        // Add post to DOM
+        addPostToDOM(post);
+
+        // Save to localStorage
+        savePost(post);
+
+        // Reset form
+        postInput.value = '';
+        postInput.style.height = 'auto';
+        selectedMedia = [];
+        mediaPreview.style.display = 'none';
+        mediaPreview.innerHTML = '';
+        mediaInput.value = '';
+        updatePostButton();
     }
 
-    // Lưu vào localStorage
-    savePost(post);
-
-    // Reset form
-    postInput.value = '';
-    postInput.style.height = 'auto';
-    selectedMedia = [];
-    mediaPreview.style.display = 'none';
-    mediaPreview.innerHTML = '';
-    mediaInput.value = '';
-    updatePostButton();
-}
 
     // Initialize Video Players
     function initializeVideoPlayers() {
@@ -337,6 +337,34 @@ window.deletePost = function(postId) {
         }
     }
 };
+        // Kiểm tra dữ liệu trước khi lưu
+        console.log('Saving post:', post);
+        // Thêm try-catch cho việc lưu localStorage
+        try {
+            // Add post to DOM
+            addPostToDOM(post);
+            // Save to localStorage
+            savePost(post);
+        } catch (error) {
+            console.error('Error saving post:', error);
+            alert('Có lỗi xảy ra khi lưu bài đăng. Vui lòng thử lại.');
+            return;
+        }
+
+        // Reset form
+        postInput.value = '';
+        postInput.style.height = 'auto';
+        selectedMedia = [];
+        mediaPreview.style.display = 'none';
+        mediaPreview.innerHTML = '';
+        mediaInput.value = '';
+        updatePostButton();
+        
+    } catch (error) {
+        console.error('Error creating post:', error);
+        alert('Có lỗi xảy ra khi tạo bài đăng. Vui lòng thử lại.');
+    }
+}
 
     window.toggleLike = function(postId) {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -396,28 +424,7 @@ function restoreCommentStates() {
     });
 }
 
-// Sửa lại hàm loadPosts
 function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const postsContainer = document.getElementById('posts-container');
-    postsContainer.innerHTML = '';
-
-    // Sắp xếp posts theo id giảm dần (mới nhất lên đầu)
-    posts.sort((a, b) => b.id - a.id);
-    
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        post.comments?.forEach(comment => {
-            if (comment.replies?.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
-    });
-    
-    restoreCommentStates();
-    restoreReactionStates();
-}
 
 
 // Thay đổi phần xử lý comment input
@@ -596,15 +603,11 @@ function formatTime(timestamp) {
 }
 
 function savePost(post) {
-    try {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm vào đầu mảng
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
-    } catch (error) {
-        console.error('Error saving post:', error);
-        throw new Error('Failed to save post');
-    }
 }
+
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
