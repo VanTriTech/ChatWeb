@@ -254,21 +254,26 @@ async function createPost() {
                 username: profileUsername,
                 avatar: document.querySelector('.profile-avatar img').src
             },
-            media: JSON.parse(JSON.stringify(selectedMedia)), // Deep copy media array
+            // Đảm bảo copy toàn bộ thông tin media
+            media: selectedMedia.map(media => ({
+                type: media.type,
+                url: media.url,
+                // Thêm các thuộc tính khác nếu cần
+            })),
             reactions: {
                 likes: 0,
                 hearts: 0,
-                angry: 0,
-                likes2: 0 // Thêm likes2
+                angry: 0
             },
             userReactions: {},
-            liked2By: [], // Thêm liked2By array
             comments: [],
             timestamp: new Date().toISOString()
         };
 
-        // Thêm post vào DOM và localStorage
+        // Add post to DOM
         addPostToDOM(post);
+
+        // Save to localStorage
         savePost(post);
 
         // Reset form
@@ -279,12 +284,7 @@ async function createPost() {
         mediaPreview.innerHTML = '';
         mediaInput.value = '';
         updatePostButton();
-        
-    } catch (error) {
-        console.error('Error creating post:', error);
-        alert('Có lỗi xảy ra khi tạo bài đăng. Vui lòng thử lại.');
     }
-}
 
 
     // Initialize Video Players
@@ -602,17 +602,12 @@ function formatTime(timestamp) {
     return date.toLocaleDateString('vi-VN');
 }
 
-// Sửa lại hàm savePost
 function savePost(post) {
-    try {
-        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        posts.unshift(post); // Thêm post mới vào đầu mảng
-        localStorage.setItem('posts', JSON.stringify(posts));
-    } catch (error) {
-        console.error('Error saving post:', error);
-        throw new Error('Không thể lưu bài đăng');
-    }
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.unshift(post);
+    localStorage.setItem('posts', JSON.stringify(posts));
 }
+
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
