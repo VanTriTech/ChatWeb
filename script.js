@@ -264,12 +264,18 @@ async function createPost() {
         comments: [],
         timestamp: new Date().toISOString()
     };
-    // Thêm post vào localStorage trước
+    // Chỉ lưu post một lần vào localStorage
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post); // Thêm vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 
-
+   // Thêm post vào đầu DOM
+    const firstPost = postsContainer.firstChild;
+    if (firstPost) {
+        postsContainer.insertBefore(addPostToDOM(post), firstPost);
+    } else {
+        postsContainer.appendChild(addPostToDOM(post));
+    }
         // Add post to DOM
     addPostToDOM(post);
 
