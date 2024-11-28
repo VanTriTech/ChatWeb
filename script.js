@@ -572,8 +572,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    // Thay đổi từ push thành unshift để thêm vào đầu mảng
-    posts.unshift(post);
+    posts.unshift(post); // Thêm vào đầu mảng thay vì push
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -1035,7 +1034,6 @@ function restoreReactionStates() {
 }
 
 // Cập nhật hàm loadPosts để gọi restoreReactionStates
-// Sửa hàm loadPosts để sắp xếp posts từ mới đến cũ
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
