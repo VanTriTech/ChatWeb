@@ -267,8 +267,6 @@ async function createPost() {
         // Add post to DOM
         addPostToDOM(post);
 
-        // Save to localStorage
-        savePost(post);
 
         // Reset form
         postInput.value = '';
