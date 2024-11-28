@@ -397,23 +397,17 @@ function loadPosts() {
     // Sắp xếp posts theo thời gian mới nhất
     posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
-    // Thay đổi cách thêm post vào container
+    // Xóa tất cả posts hiện tại
     const postsContainer = document.getElementById('posts-container');
-    if (postsContainer.firstChild) {
-        postsContainer.insertBefore(postElement, postsContainer.firstChild);
-    } else {
-        postsContainer.appendChild(postElement);
-    }
-    updateMediaTab();
-}
+    postsContainer.innerHTML = '';
     
-    // Thêm lại posts theo thứ tự mới
+    // Thêm lại posts theo thứ tự đã sắp xếp
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
         
         // Setup collapse cho replies của mỗi comment
-        post.comments?.forEach(comment => {
+        post.comments.forEach(comment => {
             if (comment.replies && comment.replies.length > 0) {
                 setupReplyCollapse(comment.id);
             }
@@ -423,7 +417,6 @@ function loadPosts() {
     restoreCommentStates();
     restoreReactionStates();
 }
-
 
 
 // Thay đổi phần xử lý comment input
@@ -601,11 +594,10 @@ function formatTime(timestamp) {
     return date.toLocaleDateString('vi-VN');
 }
 
-// Sửa lại hàm savePost
 function savePost(post) {
     try {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        posts.unshift(post); // Thêm post mới vào đầu mảng
+        posts.push(post); // Thay đổi từ unshift sang push
         localStorage.setItem('posts', JSON.stringify(posts));
     } catch (error) {
         console.error('Error saving post:', error);
