@@ -390,33 +390,28 @@ function restoreCommentStates() {
     });
 }
 
+// Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
-    // Xóa nội dung cũ
-    postsContainer.innerHTML = '';
-    
     // Sắp xếp posts theo thời gian mới nhất
     posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-function addPostToDOM(post) {
-    // Thêm posts vào đầu container
+    
     posts.forEach(post => {
-        const postElement = createPostElement(post);
-        postsContainer.insertBefore(postElement, postsContainer.firstChild);
+        addPostToDOM(post);
         setupCommentCollapse(post.id);
         
-        if (post.comments) {
-            post.comments.forEach(comment => {
-                if (comment.replies && comment.replies.length > 0) {
-                    setupReplyCollapse(comment.id);
-                }
-            });
-        }
+        // Setup collapse cho replies của mỗi comment
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
     });
-    
     restoreCommentStates();
     restoreReactionStates();
 }
+
 
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
@@ -595,8 +590,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    // Thêm post mới vào đầu mảng thay vì cuối mảng
-    posts.unshift(post); // Thay đổi từ push() thành unshift()
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -605,7 +599,7 @@ function savePost(post) {
 let currentImageIndex = 0;
 let currentImages = [];
 
-function createPostElement(post) {
+function addPostToDOM(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
     postElement.setAttribute('data-post-id', post.id);
