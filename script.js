@@ -1,6 +1,4 @@
-À không, tôi nghĩ đó là vấn đề script.js
-Khi tôi đăng 1 bài đầu có ảnh, video
-Tôi đăng bài có video, ảnh thứ 2 thì sau khi đăng lên lỗi, tôi không đăng thêm được ảnh, khi reset trang bài đăng có ảnh bị mất, trong khi bài đăng chữ thì không vấn đề gì
+
 (function() {
     let isLocked = false;
     
