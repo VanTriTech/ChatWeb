@@ -601,6 +601,7 @@ function addPostToDOM(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
     postElement.setAttribute('data-post-id', post.id);
+    postElement.setAttribute('data-timestamp', post.timestamp);
 
     const mediaHTML = post.media && post.media.length ? generateMediaGrid(post.media) : '';
     const commentsHTML = post.comments ? post.comments.map(comment => `
@@ -744,7 +745,30 @@ function addPostToDOM(post) {
     }
 }
 
+    // Thêm post vào đúng vị trí dựa trên timestamp
+    const posts = Array.from(postsContainer.children);
+    const insertIndex = posts.findIndex(p => {
+        const existingTime = new Date(p.getAttribute('data-timestamp'));
+        const newTime = new Date(post.timestamp);
+        return newTime > existingTime;
+    });
 
+    if (insertIndex === -1) {
+        postsContainer.appendChild(postElement);
+    } else {
+        postsContainer.insertBefore(postElement, posts[insertIndex]);
+    }
+
+    // Khởi tạo các tính năng cho post mới
+    setupCommentCollapse(post.id);
+    if (post.comments) {
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
+    }
+}
 // Xóa định nghĩa cũ của generateMediaGrid và chỉ giữ lại phiên bản này
 function generateMediaGrid(mediaItems) {
         if (!mediaItems.length) return '';
