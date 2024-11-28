@@ -579,7 +579,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thay đổi từ push sang unshift
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -728,8 +728,7 @@ function addPostToDOM(post) {
         </div>
     `;
 
-    const postElement = addPostToDOM(post);
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    return postElement;
 }
 
 
