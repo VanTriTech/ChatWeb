@@ -752,10 +752,9 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    #media-section .post-media {
-        grid-template-columns: repeat(2, 1fr); /* 2 cột cho tablet */
+    .post-media.single-image img {
+        max-height: 400px;
     }
-}
     
     .modal-content {
         width: 100%;
@@ -1479,25 +1478,19 @@ body {
     font-weight: 500;
     color: inherit;
 }
-/* Cập nhật style cho tab Media */
+/* Thêm styles cho tab Media */
 #media-section .post-media {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Thay đổi thành 3 cột cố định */
-    gap: 16px; /* Tăng khoảng cách giữa các ảnh */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
     padding: 16px;
-    max-width: 100%;
 }
 
 /* Thêm styles cho media overlay */
 #media-section .image-container,
 #media-section .video-container {
-    aspect-ratio: 1; /* Giữ tỷ lệ khung hình vuông */
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: 12px; /* Bo góc cho ảnh */
+    position: relative;
 }
-
 
 .media-overlay {
     position: absolute;
