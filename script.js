@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-    async function createPost() {
+async function createPost() {
     const content = postInput.value.trim();
     if (!content && selectedMedia.length === 0) return;
 
@@ -274,15 +274,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save to localStorage
         savePost(post);
 
-        // Reset form
-        postInput.value = '';
-        postInput.style.height = 'auto';
-        selectedMedia = [];
-        mediaPreview.style.display = 'none';
-        mediaPreview.innerHTML = '';
-        mediaInput.value = '';
-        updatePostButton();
-    }
+    // Reset form
+    postInput.value = '';
+    postInput.style.height = 'auto';
+    selectedMedia = [];
+    mediaPreview.style.display = 'none';
+    mediaPreview.innerHTML = '';
+    mediaInput.value = '';
+    updatePostButton();
+}
 
 
     // Initialize Video Players
