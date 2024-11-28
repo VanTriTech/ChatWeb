@@ -277,7 +277,6 @@ async function createPost() {
     mediaInput.value = '';
     updatePostButton();
     
-    // Cập nhật tab Media nếu post có tag @LanYouJin
     if (content.toLowerCase().includes('@lanyoujin')) {
         updateMediaTab();
     }
@@ -589,10 +588,22 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post); // Thêm post mới vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 }
+    // Lưu vào localStorage trước
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.unshift(post); // Thêm post mới vào đầu mảng
+    localStorage.setItem('posts', JSON.stringify(posts));
 
+    // Xóa nội dung cũ của container
+    postsContainer.innerHTML = '';
+    
+    // Load lại tất cả posts
+    posts.forEach(p => {
+        const postElement = addPostToDOM(p);
+        postsContainer.appendChild(postElement);
+    });
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
