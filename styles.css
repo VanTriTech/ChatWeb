@@ -1478,12 +1478,13 @@ body {
     font-weight: 500;
     color: inherit;
 }
-/* Thêm styles cho tab Media */
+/* Cập nhật style cho tab Media */
 #media-section .post-media {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr); /* Thay đổi thành 3 cột cố định */
+    gap: 16px; /* Tăng khoảng cách giữa các ảnh */
     padding: 16px;
+    max-width: 100%;
 }
 
 /* Thêm styles cho media overlay */
