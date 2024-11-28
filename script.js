@@ -602,10 +602,9 @@ function formatTime(timestamp) {
     return date.toLocaleDateString('vi-VN');
 }
 
-// Cập nhật hàm savePost để thêm bài mới vào đầu mảng
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm post mới vào đầu mảng thay vì push
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -1067,23 +1066,12 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để sắp xếp bài đăng theo thời gian
+// Cập nhật hàm loadPosts để gọi restoreReactionStates
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    const postsContainer = document.getElementById('posts-container');
-    postsContainer.innerHTML = '';
-    
-    posts.forEach(post => {
-        addPostToDOM(post);
-    });
-    
-    // Khôi phục trạng thái reactions và comments
-    restoreReactionStates();
+    posts.forEach(post => addPostToDOM(post));
     restoreCommentStates();
+    restoreReactionStates(); // Thêm dòng này
 }
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
