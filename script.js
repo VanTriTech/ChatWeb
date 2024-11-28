@@ -391,9 +391,11 @@ function restoreCommentStates() {
 }
 
 // Sửa lại hàm loadPosts
-// Sửa lại hàm loadPosts để sắp xếp theo thời gian mới nhất
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Xóa hết nội dung cũ trong container
+    postsContainer.innerHTML = '';
     
     // Sắp xếp posts theo thời gian mới nhất
     posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -401,8 +403,6 @@ function loadPosts() {
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
         post.comments.forEach(comment => {
             if (comment.replies && comment.replies.length > 0) {
                 setupReplyCollapse(comment.id);
@@ -595,7 +595,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post); // Thêm post mới vào đầu mảng
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -1057,27 +1057,6 @@ function restoreReactionStates() {
     });
 }
 
-// Sửa lại hàm loadPosts để sắp xếp theo thời gian mới nhất
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
-    });
-    restoreCommentStates();
-    restoreReactionStates();
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
