@@ -377,48 +377,24 @@ function restoreCommentStates() {
 
 function loadPosts() {
     try {
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     const postsContainer = document.getElementById('posts-container');
-    const posts = Array.from(postsContainer.children);
-        const insertIndex = posts.findIndex(existingPost => {
-        const existingTime = new Date(existingPost.getAttribute('data-timestamp'));
-        const newTime = new Date(post.timestamp);
-        return newTime > existingTime;
-    });
-
-    if (insertIndex === -1) {
-        postsContainer.appendChild(postElement);
+    if (postsContainer.firstChild) {
+        postsContainer.insertBefore(postElement, postsContainer.firstChild);
     } else {
-        postsContainer.insertBefore(postElement, posts[insertIndex]);
+        postsContainer.appendChild(postElement);
+    }
+    // Khởi tạo các tính năng sau khi thêm post
+    setupCommentCollapse(post.id);
+    if (post.comments) {
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
     }
 }
-        
-        if (postsContainer) {
-            postsContainer.innerHTML = '';
-            // Sắp xếp posts theo thời gian mới nhất
-            posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            posts.forEach(post => {
-                if (post && post.id) {
-                    addPostToDOM(post);
-                    setupCommentCollapse(post.id);
-                    if (post.comments) {
-                        post.comments.forEach(comment => {
-                            if (comment.replies && comment.replies.length > 0) {
-                                setupReplyCollapse(comment.id);
-                            }
-                        });
-                    }
-                }
-            });
-        }
 
-        restoreCommentStates();
-        restoreReactionStates();
-        
-    } catch (error) {
-        console.error('Lỗi khi tải posts:', error);
-    }
-}
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
     const input = event.target;
@@ -596,7 +572,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);  // Thêm bài viết mới vào đầu mảng
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
