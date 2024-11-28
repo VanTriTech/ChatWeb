@@ -584,8 +584,10 @@ function formatTime(timestamp) {
     return date.toLocaleDateString('vi-VN');
 }
 
+// Sửa lại hàm savePost để thêm bài viết mới vào đầu mảng
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    // Thêm bài viết mới vào đầu mảng
     posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
@@ -1048,13 +1050,6 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
-    restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
