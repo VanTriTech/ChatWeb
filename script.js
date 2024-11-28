@@ -245,14 +245,17 @@ async function createPost() {
     if (!content && selectedMedia.length === 0) return;
 
     const post = {
-        id: Date.now(),
+        id: Date.now(), // Sử dụng timestamp làm id
         content: content,
         author: {
             name: profileName,
             username: profileUsername,
             avatar: document.querySelector('.profile-avatar img').src
         },
-        media: selectedMedia,
+        media: selectedMedia.map(media => ({
+            type: media.type,
+            url: media.url
+        })),
         reactions: {
             likes: 0,
             hearts: 0,
@@ -260,8 +263,7 @@ async function createPost() {
         },
         userReactions: {},
         comments: [],
-        timestamp: new Date().toISOString(),
-        sortOrder: Date.now() // Thêm trường sortOrder
+        timestamp: new Date().toISOString()
     };
 
     // Thêm post vào đầu container
@@ -400,13 +402,8 @@ function loadPosts() {
     const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = '';
 
-    // Sắp xếp theo sortOrder giảm dần
-    posts.sort((a, b) => {
-        // Nếu không có sortOrder, sử dụng timestamp
-        const orderA = a.sortOrder || new Date(a.timestamp).getTime();
-        const orderB = b.sortOrder || new Date(b.timestamp).getTime();
-        return orderB - orderA;
-    });
+    // Sắp xếp posts theo id giảm dần (mới nhất lên đầu)
+    posts.sort((a, b) => b.id - a.id);
     
     posts.forEach(post => {
         addPostToDOM(post);
@@ -600,9 +597,9 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     try {
-        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        posts.unshift(post); // Luôn thêm vào đầu mảng
-        localStorage.setItem('posts', JSON.stringify(posts));
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.unshift(post); // Thêm vào đầu mảng
+    localStorage.setItem('posts', JSON.stringify(posts));
     } catch (error) {
         console.error('Error saving post:', error);
         throw new Error('Failed to save post');
