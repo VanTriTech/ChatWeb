@@ -420,6 +420,7 @@ window.handleComment = function(event, postId) {
 function addComment(postId, content) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     const post = posts.find(p => p.id === postId);
+
     
     // Xử lý nội dung comment để tìm custom tags
     function processCommentContent(content) {
@@ -1034,11 +1035,33 @@ function restoreReactionStates() {
 }
 
 // Cập nhật hàm loadPosts để gọi restoreReactionStates
+// Sửa hàm loadPosts để sắp xếp posts từ mới đến cũ
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
+    
+    // Sắp xếp posts theo timestamp từ mới đến cũ
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Xóa hết posts hiện tại trong container
+    postsContainer.innerHTML = '';
+    
+    // Thêm lại posts theo thứ tự đã sắp xếp
+    posts.forEach(post => {
+        addPostToDOM(post);
+        setupCommentCollapse(post.id);
+        
+        // Setup collapse cho replies của mỗi comment
+        if (post.comments) {
+            post.comments.forEach(comment => {
+                if (comment.replies && comment.replies.length > 0) {
+                    setupReplyCollapse(comment.id);
+                }
+            });
+        }
+    });
+    
     restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
+    restoreReactionStates();
 }
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
