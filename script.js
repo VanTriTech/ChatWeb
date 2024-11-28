@@ -397,17 +397,24 @@ function loadPosts() {
     // Sắp xếp posts theo thời gian mới nhất
     posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
+    // Xóa hết posts hiện tại
+    postsContainer.innerHTML = '';
+    
+    // Thêm lại posts theo thứ tự mới
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
         
         // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
+        if (post.comments) {
+            post.comments.forEach(comment => {
+                if (comment.replies && comment.replies.length > 0) {
+                    setupReplyCollapse(comment.id);
+                }
+            });
+        }
     });
+    
     restoreCommentStates();
     restoreReactionStates();
 }
