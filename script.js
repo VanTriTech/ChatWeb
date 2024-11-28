@@ -263,16 +263,13 @@ async function createPost() {
         comments: [],
         timestamp: new Date().toISOString()
     };
-    // Thêm 2 dòng này vào đây
+    // Lưu vào localStorage trước
+    savePost(post);
+
+    // Thêm vào DOM sau
     const postElement = addPostToDOM(post);
     postsContainer.insertBefore(postElement, postsContainer.firstChild);
 
-
-        // Add post to DOM
-        addPostToDOM(post);
-
-        // Save to localStorage
-        savePost(post);
 
     // Reset form
     postInput.value = '';
