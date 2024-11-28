@@ -390,17 +390,13 @@ function restoreCommentStates() {
     });
 }
 
-// Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Xóa hết posts hiện tại
+    // Xóa nội dung cũ
     postsContainer.innerHTML = '';
     
-    // Thêm lại posts theo thứ tự mới
+    // Duyệt mảng từ đầu đến cuối (không cần sort vì đã sắp xếp khi lưu)
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
@@ -418,7 +414,6 @@ function loadPosts() {
     restoreCommentStates();
     restoreReactionStates();
 }
-
 
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
@@ -597,7 +592,8 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    // Thêm post mới vào đầu mảng thay vì cuối mảng
+    posts.unshift(post); // Thay đổi từ push() thành unshift()
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
