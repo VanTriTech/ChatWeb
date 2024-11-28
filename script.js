@@ -425,34 +425,6 @@ function restoreCommentStates() {
 }
 
 function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    const sortedPosts = posts.sort((a, b) => {
-        return new Date(b.timestamp) - new Date(a.timestamp);
-    });
-    
-    // Xóa hết posts hiện tại trong container
-    postsContainer.innerHTML = '';
-    
-    // Thêm lại posts theo thứ tự mới
-    sortedPosts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        if (post.comments) {
-            post.comments.forEach(comment => {
-                if (comment.replies && comment.replies.length > 0) {
-                    setupReplyCollapse(comment.id);
-                }
-            });
-        }
-    });
-    
-    restoreCommentStates();
-    restoreReactionStates();
-}
 
 
 // Thay đổi phần xử lý comment input
