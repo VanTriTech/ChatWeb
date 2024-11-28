@@ -378,17 +378,28 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Sắp xếp posts theo timestamp từ mới đến cũ
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Xóa hết posts hiện tại trong container
+    postsContainer.innerHTML = '';
+    
+    // Thêm lại posts theo thứ tự đã sắp xếp
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
         
         // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
+        if (post.comments) {
+            post.comments.forEach(comment => {
+                if (comment.replies && comment.replies.length > 0) {
+                    setupReplyCollapse(comment.id);
+                }
+            });
+        }
     });
+    
     restoreCommentStates();
     restoreReactionStates();
 }
@@ -1033,34 +1044,6 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo timestamp từ mới đến cũ
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    // Xóa hết posts hiện tại trong container
-    postsContainer.innerHTML = '';
-    
-    // Thêm lại posts theo thứ tự đã sắp xếp
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        if (post.comments) {
-            post.comments.forEach(comment => {
-                if (comment.replies && comment.replies.length > 0) {
-                    setupReplyCollapse(comment.id);
-                }
-            });
-        }
-    });
-    
-    restoreCommentStates();
-    restoreReactionStates();
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
