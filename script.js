@@ -1,3 +1,6 @@
+À không, tôi nghĩ đó là vấn đề script.js
+Khi tôi đăng 1 bài đầu có ảnh, video
+Tôi đăng bài có video, ảnh thứ 2 thì sau khi đăng lên lỗi, tôi không đăng thêm được ảnh, khi reset trang bài đăng có ảnh bị mất, trong khi bài đăng chữ thì không vấn đề gì
 (function() {
     let isLocked = false;
     
@@ -240,11 +243,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-async function createPost() {
-    const content = postInput.value.trim();
-    if (!content && selectedMedia.length === 0) return;
+    async function createPost() {
+        const content = postInput.value.trim();
+        if (!content && selectedMedia.length === 0) return;
 
-    try {
         const postId = Date.now();
         const post = {
             id: postId,
@@ -254,18 +256,13 @@ async function createPost() {
                 username: profileUsername,
                 avatar: document.querySelector('.profile-avatar img').src
             },
-            // Đảm bảo copy toàn bộ thông tin media
-            media: selectedMedia.map(media => ({
-                type: media.type,
-                url: media.url,
-                // Thêm các thuộc tính khác nếu cần
-            })),
+            media: selectedMedia,
             reactions: {
                 likes: 0,
                 hearts: 0,
                 angry: 0
             },
-            userReactions: {},
+            userReactions: {}, // Lưu reaction của từng user
             comments: [],
             timestamp: new Date().toISOString()
         };
@@ -337,34 +334,6 @@ window.deletePost = function(postId) {
         }
     }
 };
-        // Kiểm tra dữ liệu trước khi lưu
-        console.log('Saving post:', post);
-        // Thêm try-catch cho việc lưu localStorage
-        try {
-            // Add post to DOM
-            addPostToDOM(post);
-            // Save to localStorage
-            savePost(post);
-        } catch (error) {
-            console.error('Error saving post:', error);
-            alert('Có lỗi xảy ra khi lưu bài đăng. Vui lòng thử lại.');
-            return;
-        }
-
-        // Reset form
-        postInput.value = '';
-        postInput.style.height = 'auto';
-        selectedMedia = [];
-        mediaPreview.style.display = 'none';
-        mediaPreview.innerHTML = '';
-        mediaInput.value = '';
-        updatePostButton();
-        
-    } catch (error) {
-        console.error('Error creating post:', error);
-        alert('Có lỗi xảy ra khi tạo bài đăng. Vui lòng thử lại.');
-    }
-}
 
     window.toggleLike = function(postId) {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -423,6 +392,51 @@ function restoreCommentStates() {
         }
     });
 }
+
+// Sửa lại hàm loadPosts
+function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Sắp xếp posts theo thời gian mới nhất
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    posts.forEach(post => {
+        addPostToDOM(post);
+        setupCommentCollapse(post.id);
+        
+        // Setup collapse cho replies của mỗi comment
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
+    });
+    restoreCommentStates();
+    restoreReactionStates();
+}
+
+
+// Thay đổi phần xử lý comment input
+window.handleComment = function(event, postId) {
+    const input = event.target;
+    
+    // Nếu nhấn Shift + Enter thì cho phép xuống dòng
+    if (event.key === 'Enter' && event.shiftKey) {
+        return; // Cho phép hành vi mặc định (xuống dòng)
+    }
+    
+    // Nếu chỉ nhấn Enter thì gửi comment
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault(); // Ngăn xuống dòng
+        const comment = input.value.trim();
+        if (comment) {
+            addComment(postId, comment);
+            input.value = '';
+            input.style.height = 'auto'; // Reset chiều cao
+        }
+    }
+};
+
 
 // Sửa lại hàm addComment để xử lý custom comment
 function addComment(postId, content) {
@@ -1041,27 +1055,6 @@ function restoreReactionStates() {
     });
 }
 
-// Sửa lại hàm loadPosts
-function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
-    });
-    restoreCommentStates();
-    restoreReactionStates();
-}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
@@ -1566,3 +1559,4 @@ function updateMediaTab() {
         mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
+Đây là script.js hiện tại
