@@ -240,29 +240,29 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-    async function createPost() {
-        const content = postInput.value.trim();
-        if (!content && selectedMedia.length === 0) return;
+async function createPost() {
+    const content = postInput.value.trim();
+    if (!content && selectedMedia.length === 0) return;
 
-        const postId = Date.now();
-        const post = {
-            id: postId,
-            content: content,
-            author: {
-                name: profileName,
-                username: profileUsername,
-                avatar: document.querySelector('.profile-avatar img').src
-            },
-            media: selectedMedia,
-            reactions: {
-                likes: 0,
-                hearts: 0,
-                angry: 0
-            },
-            userReactions: {}, // Lưu reaction của từng user
-            comments: [],
-            timestamp: new Date().toISOString()
-        };
+    const postId = Date.now();
+    const post = {
+        id: postId,
+        content: content,
+        author: {
+            name: profileName,
+            username: profileUsername,
+            avatar: document.querySelector('.profile-avatar img').src
+        },
+        media: selectedMedia,
+        reactions: {
+            likes: 0,
+            hearts: 0,
+            angry: 0
+        },
+        userReactions: {},
+        comments: [],
+        timestamp: new Date().toISOString()
+    };
 
         // Add post to DOM
         addPostToDOM(post);
@@ -270,15 +270,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save to localStorage
         savePost(post);
 
-        // Reset form
-        postInput.value = '';
-        postInput.style.height = 'auto';
-        selectedMedia = [];
-        mediaPreview.style.display = 'none';
-        mediaPreview.innerHTML = '';
-        mediaInput.value = '';
-        updatePostButton();
-    }
+    // Reset form
+    postInput.value = '';
+    postInput.style.height = 'auto';
+    selectedMedia = [];
+    mediaPreview.style.display = 'none';
+    mediaPreview.innerHTML = '';
+    mediaInput.value = '';
+    updatePostButton();
+}
 
 
     // Initialize Video Players
@@ -378,17 +378,20 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    postsContainer.innerHTML = '';
+    
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
+        if (post.comments) {
+            post.comments.forEach(comment => {
+                if (comment.replies && comment.replies.length > 0) {
+                    setupReplyCollapse(comment.id);
+                }
+            });
+        }
     });
+    
     restoreCommentStates();
     restoreReactionStates();
 }
@@ -833,7 +836,8 @@ window.openImageModal = function(imageUrl, index, imagesArray) {
         }
     });
 
-    // Initial load
+    // Xóa nội dung cũ và load lại toàn bộ posts
+    postsContainer.innerHTML = '';
     loadPosts();
 });
 
