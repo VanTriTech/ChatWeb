@@ -353,6 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Lưu trạng thái hiển thị vào localStorage
         const commentStates = JSON.parse(localStorage.getItem('commentStates') || '{}');
+        commentStates[postId] = isHidden;
         localStorage.setItem('commentStates', JSON.stringify(commentStates));
     };
 // Thêm hiệu ứng animation khi like
@@ -374,24 +375,24 @@ function restoreCommentStates() {
     });
 }
 
-// Sửa lỗi đóng function loadPosts()
+// Sửa lại hàm loadPosts
 function loadPosts() {
-    try {
-        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        const postsContainer = document.getElementById('posts-container');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.forEach(post => {
+        addPostToDOM(post);
+        setupCommentCollapse(post.id);
         
-        if (postsContainer) {
-            postsContainer.innerHTML = '';
-            posts.forEach(post => {
-                if (post && post.id) {
-                    addPostToDOM(post);
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Lỗi khi tải posts:', error);
-    }
-} // Thiếu dấu đóng ngoặc này
+        // Setup collapse cho replies của mỗi comment
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
+    });
+    restoreCommentStates();
+    restoreReactionStates();
+}
+
 
 // Thay đổi phần xử lý comment input
 window.handleComment = function(event, postId) {
@@ -575,7 +576,6 @@ function savePost(post) {
 }
 
 
-
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
 let currentImages = [];
@@ -584,7 +584,6 @@ function addPostToDOM(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
     postElement.setAttribute('data-post-id', post.id);
-    postElement.setAttribute('data-timestamp', post.timestamp);
 
     const mediaHTML = post.media && post.media.length ? generateMediaGrid(post.media) : '';
     const commentsHTML = post.comments ? post.comments.map(comment => `
@@ -727,7 +726,7 @@ function addPostToDOM(post) {
 
 // Xóa định nghĩa cũ của generateMediaGrid và chỉ giữ lại phiên bản này
 function generateMediaGrid(mediaItems) {
-    if (!mediaItems || !mediaItems.length) retu
+        if (!mediaItems.length) return '';
 
         const imageItems = mediaItems.filter(item => item.type === 'image');
         const videoItems = mediaItems.filter(item => item.type === 'video');
@@ -1033,6 +1032,13 @@ function restoreReactionStates() {
     });
 }
 
+// Cập nhật hàm loadPosts để gọi restoreReactionStates
+function loadPosts() {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.forEach(post => addPostToDOM(post));
+    restoreCommentStates();
+    restoreReactionStates(); // Thêm dòng này
+}
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
     const menu = document.getElementById(`comment-menu-${commentId}`);
