@@ -393,22 +393,18 @@ function restoreCommentStates() {
 // Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    
-    // Sắp xếp posts theo thời gian mới nhất
-    posts.sort((a, b) => b.id - a.id); // Sử dụng id thay vì timestamp
-    
-    // Xóa tất cả posts hiện tại
     const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = '';
+
+    // Sắp xếp posts theo timestamp giảm dần (mới nhất lên đầu)
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
-    // Thêm lại posts theo thứ tự đã sắp xếp
+    // Thêm posts vào DOM theo thứ tự đã sắp xếp
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
+        post.comments?.forEach(comment => {
+            if (comment.replies?.length > 0) {
                 setupReplyCollapse(comment.id);
             }
         });
@@ -597,7 +593,7 @@ function formatTime(timestamp) {
 function savePost(post) {
     try {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        posts.unshift(post); // Sử dụng unshift để thêm vào đầu mảng
+        posts.push(post); // Chỉ cần push vào mảng, không cần unshift
         localStorage.setItem('posts', JSON.stringify(posts));
     } catch (error) {
         console.error('Error saving post:', error);
