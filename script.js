@@ -589,7 +589,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post); // Thêm post mới vào đầu mảng
+    posts.unshift(post);
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -737,9 +737,8 @@ function addPostToDOM(post) {
             </div>
         </div>
     `;
-
-    postsContainer.insertBefore(postElement, postsContainer.firstChild);
     updateMediaTab();
+    return postElement;
 }
 
 
