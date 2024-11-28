@@ -393,18 +393,18 @@ function restoreCommentStates() {
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     
-    // Sắp xếp posts theo thời gian mới nhất trước khi render
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
     // Xóa nội dung cũ
     postsContainer.innerHTML = '';
     
-    // Render posts đã được sắp xếp
+    // Sắp xếp posts theo thời gian mới nhất
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Thêm posts vào đầu container
     posts.forEach(post => {
-        addPostToDOM(post);
+        const postElement = createPostElement(post);
+        postsContainer.insertBefore(postElement, postsContainer.firstChild);
         setupCommentCollapse(post.id);
         
-        // Setup collapse cho replies của mỗi comment
         if (post.comments) {
             post.comments.forEach(comment => {
                 if (comment.replies && comment.replies.length > 0) {
@@ -605,7 +605,7 @@ function savePost(post) {
 let currentImageIndex = 0;
 let currentImages = [];
 
-function addPostToDOM(post) {
+function createPostElement(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
     postElement.setAttribute('data-post-id', post.id);
@@ -745,7 +745,7 @@ function addPostToDOM(post) {
         </div>
     `;
 
-    postsContainer.appendChild(postElement);
+    postsContainer.insertBefore(postElement, postsContainer.firstChild);
     updateMediaTab();
 }
 
