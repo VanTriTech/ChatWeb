@@ -391,8 +391,13 @@ function restoreCommentStates() {
 }
 
 // Sửa lại hàm loadPosts
+// Sửa lại hàm loadPosts để sắp xếp theo thời gian mới nhất
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Sắp xếp posts theo thời gian mới nhất
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
@@ -1052,12 +1057,26 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
+// Sửa lại hàm loadPosts để sắp xếp theo thời gian mới nhất
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
+    
+    // Sắp xếp posts theo thời gian mới nhất
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    posts.forEach(post => {
+        addPostToDOM(post);
+        setupCommentCollapse(post.id);
+        
+        // Setup collapse cho replies của mỗi comment
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
+    });
     restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
+    restoreReactionStates();
 }
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
