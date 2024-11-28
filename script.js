@@ -240,10 +240,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-    async function createPost() {
-        const content = postInput.value.trim();
-        if (!content && selectedMedia.length === 0) return;
+async function createPost() {
+    const content = postInput.value.trim();
+    if (!content && selectedMedia.length === 0) return;
 
+    try {
         const postId = Date.now();
         const post = {
             id: postId,
@@ -253,13 +254,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 username: profileUsername,
                 avatar: document.querySelector('.profile-avatar img').src
             },
-            media: selectedMedia,
+            // Đảm bảo copy toàn bộ thông tin media
+            media: selectedMedia.map(media => ({
+                type: media.type,
+                url: media.url,
+                // Thêm các thuộc tính khác nếu cần
+            })),
             reactions: {
                 likes: 0,
                 hearts: 0,
                 angry: 0
             },
-            userReactions: {}, // Lưu reaction của từng user
+            userReactions: {},
             comments: [],
             timestamp: new Date().toISOString()
         };
@@ -306,16 +312,59 @@ document.addEventListener('DOMContentLoaded', function() {
         menu.classList.toggle('active');
     }
 
-    window.deletePost = function(postId) {
-        if (confirm('Bạn có chắc muốn xóa bài đăng này?')) {
-            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-            const updatedPosts = posts.filter(p => p.id !== postId);
-            localStorage.setItem('posts', JSON.stringify(updatedPosts));
+window.deletePost = function(postId) {
+    if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        const postIndex = posts.findIndex(p => p.id === postId);
+        
+        if (postIndex !== -1) {
+            // Xóa post khỏi mảng
+            posts.splice(postIndex, 1);
             
-            const post = document.querySelector(`[data-post-id="${postId}"]`);
-            post.remove();
+            // Cập nhật localStorage
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            // Xóa post khỏi DOM
+            const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+            if (postElement) {
+                postElement.remove();
+            }
+          // Cập nhật lại tab Media
+            updateMediaTab();
+            
+            // Thông báo xóa thành công (tùy chọn)
+            console.log('Đã xóa bài viết thành công');
         }
     }
+};
+        // Kiểm tra dữ liệu trước khi lưu
+        console.log('Saving post:', post);
+        // Thêm try-catch cho việc lưu localStorage
+        try {
+            // Add post to DOM
+            addPostToDOM(post);
+            // Save to localStorage
+            savePost(post);
+        } catch (error) {
+            console.error('Error saving post:', error);
+            alert('Có lỗi xảy ra khi lưu bài đăng. Vui lòng thử lại.');
+            return;
+        }
+
+        // Reset form
+        postInput.value = '';
+        postInput.style.height = 'auto';
+        selectedMedia = [];
+        mediaPreview.style.display = 'none';
+        mediaPreview.innerHTML = '';
+        mediaInput.value = '';
+        updatePostButton();
+        
+    } catch (error) {
+        console.error('Error creating post:', error);
+        alert('Có lỗi xảy ra khi tạo bài đăng. Vui lòng thử lại.');
+    }
+}
 
     window.toggleLike = function(postId) {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -375,23 +424,7 @@ function restoreCommentStates() {
     });
 }
 
-// Sửa lại hàm loadPosts
 function loadPosts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => {
-        addPostToDOM(post);
-        setupCommentCollapse(post.id);
-        
-        // Setup collapse cho replies của mỗi comment
-        post.comments.forEach(comment => {
-            if (comment.replies && comment.replies.length > 0) {
-                setupReplyCollapse(comment.id);
-            }
-        });
-    });
-    restoreCommentStates();
-    restoreReactionStates();
-}
 
 
 // Thay đổi phần xử lý comment input
@@ -721,6 +754,7 @@ function addPostToDOM(post) {
     `;
 
     postsContainer.insertBefore(postElement, postsContainer.firstChild);
+    updateMediaTab();
 }
 
 
@@ -1470,4 +1504,76 @@ function addLike2Animation(button) {
     setTimeout(() => {
         thumbsUp.classList.remove('like-animation');
     }, 500);
+}
+// Thêm hàm để cập nhật tab Media
+function updateMediaTab() {
+    const mediaSection = document.getElementById('media-section');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Lọc các bài đăng có chứa "@LanYouJin" trong nội dung chính của post (không tính comments)
+    const allMedia = posts.reduce((acc, post) => {
+        // Kiểm tra nội dung chính của post có chứa @LanYouJin
+        const postContent = post.content || '';
+        if (
+            postContent.toLowerCase().includes("@lanyoujin") &&
+            post.media && 
+            post.media.length > 0
+        ) {
+            // Thêm thông tin post vào mỗi media item
+            const mediaWithPostInfo = post.media.map(media => ({
+                ...media,
+                postId: post.id,
+                timestamp: post.timestamp,
+                content: post.content,
+                author: post.author
+            }));
+            acc.push(...mediaWithPostInfo);
+        }
+        return acc;
+    }, []);
+    
+    // Sắp xếp media theo thời gian mới nhất
+    allMedia.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Tạo grid hiển thị media
+    const mediaGrid = document.createElement('div');
+    mediaGrid.className = 'post-media multiple-images';
+    
+    // Tạo HTML cho từng media item
+    const mediaHTML = allMedia.map(media => {
+        const mediaOverlay = `
+            <div class="media-overlay">
+                <span class="media-tag">@LanYouJin</span>
+                <span class="media-author">by ${media.author.name}</span>
+            </div>
+        `;
+
+        if (media.type === 'image') {
+            const imageData = encodeURIComponent(JSON.stringify([media]));
+            return `
+                <div class="image-container" onclick="openImageModal('${media.url}', 0, '${imageData}')">
+                    <img src="${media.url}" alt="Media content">
+                    ${mediaOverlay}
+                </div>
+            `;
+        } else if (media.type === 'video') {
+            return `
+                <div class="video-container">
+                    <video src="${media.url}" controls></video>
+                    ${mediaOverlay}
+                </div>
+            `;
+        }
+        return '';
+    }).join('');
+    
+    mediaGrid.innerHTML = mediaHTML;
+    
+    // Xóa nội dung cũ và thêm grid mới
+    mediaSection.innerHTML = '';
+    if (allMedia.length > 0) {
+        mediaSection.appendChild(mediaGrid);
+    } else {
+        mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
+    }
 }
