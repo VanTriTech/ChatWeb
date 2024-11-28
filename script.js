@@ -240,46 +240,50 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-    async function createPost() {
-        const content = postInput.value.trim();
-        if (!content && selectedMedia.length === 0) return;
+async function createPost() {
+    const content = postInput.value.trim();
+    if (!content && selectedMedia.length === 0) return;
 
-        const postId = Date.now();
-        const post = {
-            id: postId,
-            content: content,
-            author: {
-                name: profileName,
-                username: profileUsername,
-                avatar: document.querySelector('.profile-avatar img').src
-            },
-            media: selectedMedia,
-            reactions: {
-                likes: 0,
-                hearts: 0,
-                angry: 0
-            },
-            userReactions: {}, // Lưu reaction của từng user
-            comments: [],
-            timestamp: new Date().toISOString()
-        };
+    const post = {
+        id: Date.now(),
+        content: content,
+        author: {
+            name: profileName,
+            username: profileUsername,
+            avatar: document.querySelector('.profile-avatar img').src
+        },
+        media: selectedMedia,
+        reactions: {
+            likes: 0,
+            hearts: 0,
+            angry: 0
+        },
+        userReactions: {},
+        comments: [],
+        timestamp: new Date().toISOString(),
+        sortOrder: Date.now() // Thêm trường sortOrder
+    };
 
-        // Add post to DOM
-        addPostToDOM(post);
-
-        // Save to localStorage
-        savePost(post);
-
-        // Reset form
-        postInput.value = '';
-        postInput.style.height = 'auto';
-        selectedMedia = [];
-        mediaPreview.style.display = 'none';
-        mediaPreview.innerHTML = '';
-        mediaInput.value = '';
-        updatePostButton();
+    // Thêm post vào đầu container
+    const postsContainer = document.getElementById('posts-container');
+    const firstPost = postsContainer.firstChild;
+    addPostToDOM(post);
+    if (firstPost) {
+        postsContainer.insertBefore(postsContainer.lastChild, firstPost);
     }
 
+    // Lưu vào localStorage
+    savePost(post);
+
+    // Reset form
+    postInput.value = '';
+    postInput.style.height = 'auto';
+    selectedMedia = [];
+    mediaPreview.style.display = 'none';
+    mediaPreview.innerHTML = '';
+    mediaInput.value = '';
+    updatePostButton();
+}
 
     // Initialize Video Players
     function initializeVideoPlayers() {
@@ -396,10 +400,14 @@ function loadPosts() {
     const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = '';
 
-    // Sắp xếp posts theo timestamp giảm dần (mới nhất lên đầu)
-    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Sắp xếp theo sortOrder giảm dần
+    posts.sort((a, b) => {
+        // Nếu không có sortOrder, sử dụng timestamp
+        const orderA = a.sortOrder || new Date(a.timestamp).getTime();
+        const orderB = b.sortOrder || new Date(b.timestamp).getTime();
+        return orderB - orderA;
+    });
     
-    // Thêm posts vào DOM theo thứ tự đã sắp xếp
     posts.forEach(post => {
         addPostToDOM(post);
         setupCommentCollapse(post.id);
@@ -593,7 +601,7 @@ function formatTime(timestamp) {
 function savePost(post) {
     try {
         const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        posts.push(post); // Chỉ cần push vào mảng, không cần unshift
+        posts.unshift(post); // Luôn thêm vào đầu mảng
         localStorage.setItem('posts', JSON.stringify(posts));
     } catch (error) {
         console.error('Error saving post:', error);
