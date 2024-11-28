@@ -8,24 +8,27 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: url('pics/bg-login.wmz') no-repeat center center fixed;
-        background-size: cover;
-        margin: 0;
-        color: #fff;
-    }
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            background: #16181c;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-        }
+        body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #ffd1dc, #e8f4f8);
+    margin: 0;
+    color: #4a4a4a;
+    font-family: 'Segoe UI', sans-serif;
+}
+/* Code mới - Container trong suốt với viền */
+.login-container {
+    width: 100%;
+    max-width: 380px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: floatIn 0.6s ease-out;
+}
         .login-container h2 {
             text-align: center;
             margin-bottom: 20px;
@@ -39,17 +42,37 @@
             margin-bottom: 8px;
             color: #aaa;
         }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: #202327;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            outline: none;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
+/* Code mới - Input fields với style cute */
+.form-group input {
+    width: 100%;
+    padding: 14px;
+    background: #fff;
+    border: 2px solid #ffd1dc;
+    border-radius: 12px;
+    color: #4a4a4a;
+    outline: none;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+.form-group input:focus {
+    border-color: #ff9eb5;
+    box-shadow: 0 0 0 3px rgba(255, 158, 181, 0.2);
+}
+/* Thêm mới - Animation nổi lên */
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
         .form-group i {
             margin-right: 8px;
             color: #1d9bf0;
@@ -61,21 +84,24 @@
             padding: 12px;
             border-radius: 8px;
         }
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #1d9bf0;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #1a8cd8;
-        }
+/* Code mới - Button cute */
+button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(45deg, #ff9eb5, #ffd1dc);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 158, 181, 0.3);
+}
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 158, 181, 0.4);
+}
         .note {
             text-align: center;
             margin-top: 20px;
