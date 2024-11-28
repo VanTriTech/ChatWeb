@@ -377,11 +377,26 @@ function restoreCommentStates() {
 
 function loadPosts() {
     try {
-        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        const postsContainer = document.getElementById('posts-container');
+    const postsContainer = document.getElementById('posts-container');
+    const posts = Array.from(postsContainer.children);
+        const insertIndex = posts.findIndex(existingPost => {
+        const existingTime = new Date(existingPost.getAttribute('data-timestamp'));
+        const newTime = new Date(post.timestamp);
+        return newTime > existingTime;
+    });
+
+    if (insertIndex === -1) {
+        postsContainer.appendChild(postElement);
+    } else {
+        postsContainer.insertBefore(postElement, posts[insertIndex]);
+    }
+}
         
         if (postsContainer) {
             postsContainer.innerHTML = '';
+            // Sắp xếp posts theo thời gian mới nhất
+            posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
             posts.forEach(post => {
                 if (post && post.id) {
                     addPostToDOM(post);
@@ -595,6 +610,7 @@ function addPostToDOM(post) {
     const postElement = document.createElement('div');
     postElement.className = 'post';
     postElement.setAttribute('data-post-id', post.id);
+    postElement.setAttribute('data-timestamp', post.timestamp);
 
     const mediaHTML = post.media && post.media.length ? generateMediaGrid(post.media) : '';
     const commentsHTML = post.comments ? post.comments.map(comment => `
