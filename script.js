@@ -264,6 +264,7 @@ async function createPost() {
         timestamp: new Date().toISOString()
     };
 
+
         // Add post to DOM
         addPostToDOM(post);
 
@@ -380,8 +381,12 @@ function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     postsContainer.innerHTML = '';
     
+    // Sắp xếp posts từ mới đến cũ
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
     posts.forEach(post => {
-        addPostToDOM(post);
+        const postElement = addPostToDOM(post);
+        postsContainer.appendChild(postElement);
         setupCommentCollapse(post.id);
         if (post.comments) {
             post.comments.forEach(comment => {
@@ -574,7 +579,7 @@ function formatTime(timestamp) {
 
 function savePost(post) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.unshift(post);
+    posts.unshift(post); // Thay đổi từ push sang unshift
     localStorage.setItem('posts', JSON.stringify(posts));
 }
 
@@ -723,6 +728,7 @@ function addPostToDOM(post) {
         </div>
     `;
 
+    const postElement = addPostToDOM(post);
     postsContainer.insertBefore(postElement, postsContainer.firstChild);
 }
 
