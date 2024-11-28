@@ -581,7 +581,8 @@ function formatTime(timestamp) {
     if (diff < 60) return 'Vừa xong';
     if (diff < 3600) return `${Math.floor(diff / 60)} phút`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} giờ`;
-    return date.toLocaleDateString('vi-VN');
+    return date.toLocaleDateString('vi-VN', options);
+
 }
 
 function savePost(post) {
