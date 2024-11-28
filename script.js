@@ -424,31 +424,6 @@ function restoreCommentStates() {
     });
 }
 
-function loadPosts() {
-
-
-// Thay đổi phần xử lý comment input
-window.handleComment = function(event, postId) {
-    const input = event.target;
-    
-    // Nếu nhấn Shift + Enter thì cho phép xuống dòng
-    if (event.key === 'Enter' && event.shiftKey) {
-        return; // Cho phép hành vi mặc định (xuống dòng)
-    }
-    
-    // Nếu chỉ nhấn Enter thì gửi comment
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault(); // Ngăn xuống dòng
-        const comment = input.value.trim();
-        if (comment) {
-            addComment(postId, comment);
-            input.value = '';
-            input.style.height = 'auto'; // Reset chiều cao
-        }
-    }
-};
-
-
 // Sửa lại hàm addComment để xử lý custom comment
 function addComment(postId, content) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
@@ -1066,12 +1041,26 @@ function restoreReactionStates() {
     });
 }
 
-// Cập nhật hàm loadPosts để gọi restoreReactionStates
+// Sửa lại hàm loadPosts
 function loadPosts() {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => addPostToDOM(post));
+    
+    // Sắp xếp posts theo thời gian mới nhất
+    posts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    posts.forEach(post => {
+        addPostToDOM(post);
+        setupCommentCollapse(post.id);
+        
+        // Setup collapse cho replies của mỗi comment
+        post.comments.forEach(comment => {
+            if (comment.replies && comment.replies.length > 0) {
+                setupReplyCollapse(comment.id);
+            }
+        });
+    });
     restoreCommentStates();
-    restoreReactionStates(); // Thêm dòng này
+    restoreReactionStates();
 }
 // Thêm hàm toggleCommentMenu
 window.toggleCommentMenu = function(postId, commentId) {
