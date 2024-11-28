@@ -240,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create New Post
     postButton.addEventListener('click', createPost);
 
-// Sửa lại hàm createPost
 async function createPost() {
     const content = postInput.value.trim();
     if (!content && selectedMedia.length === 0) return;
@@ -259,17 +258,17 @@ async function createPost() {
             reactions: {
                 likes: 0,
                 hearts: 0,
-                angry: 0
+                angry: 0,
+                likes2: 0 // Thêm likes2
             },
             userReactions: {},
+            liked2By: [], // Thêm liked2By array
             comments: [],
             timestamp: new Date().toISOString()
         };
 
-        // Thêm post vào DOM trước
+        // Thêm post vào DOM và localStorage
         addPostToDOM(post);
-        
-        // Sau đó lưu vào localStorage
         savePost(post);
 
         // Reset form
@@ -614,7 +613,6 @@ function savePost(post) {
         throw new Error('Không thể lưu bài đăng');
     }
 }
-
 
 // Khai báo biến global cho image modal
 let currentImageIndex = 0;
