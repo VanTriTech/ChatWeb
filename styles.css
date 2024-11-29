@@ -1520,4 +1520,88 @@ body {
     font-weight: 500;
     background: rgba(29, 155, 240, 0.8);
     padding: 2px 8px;
-   
+.edit-reactions-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.edit-reactions-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.edit-reactions-modal .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.edit-reactions-modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.reactions-form {
+    margin: 20px 0;
+}
+
+.reaction-input {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.reaction-input i {
+    font-size: 20px;
+    width: 30px;
+    text-align: center;
+}
+
+.reaction-input input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-actions .cancel-btn {
+    background: #f0f0f0;
+}
+
+.modal-actions .save-btn {
+    background: #1da1f2;
+    color: white;
+}
+
+.modal-actions button:hover {
+    opacity: 0.9;
+}
