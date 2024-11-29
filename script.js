@@ -1570,7 +1570,7 @@ window.editPostReactions = function(postId) {
     const post = posts.find(p => p.id === postId);
     
     // Tạo modal chỉnh sửa
-       const modal = document.createElement('div');
+    const modal = document.createElement('div');
     modal.className = 'edit-reactions-modal';
     modal.innerHTML = `
         <div class="modal-content">
@@ -1578,16 +1578,16 @@ window.editPostReactions = function(postId) {
             <div class="reactions-form">
                 <div class="reaction-input">
                     <i class="fas fa-heart"></i>
-                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}">
+                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}" placeholder="Số lượt tim">
                 </div>
                 <div class="reaction-input">
                     <i class="fas fa-thumbs-up"></i>
-                    <input type="number" id="thumbsCount" min="0" value="${post.likes2 || 0}">
+                    <input type="number" id="thumbsCount" min="0" value="${post.likes2 || 0}" placeholder="Số lượt thích">
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="cancel-btn" onclick="closeReactionsModal()">Hủy</button>
-                <button class="save-btn" onclick="savePostReactions(${postId})">Lưu</button>
+                <button onclick="closeReactionsModal()">Hủy</button>
+                <button onclick="savePostReactions(${postId})">Lưu thay đổi</button>
             </div>
         </div>
     `;
