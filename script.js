@@ -720,20 +720,20 @@ function addPostToDOM(post) {
             </div>
             ${post.content ? `<p class="post-text">${post.content}</p>` : ''}
             ${mediaHTML}
-    <div class="post-actions">
-        <button class="action-button like-button ${post.userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-            <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
-            <span class="like-count">${post.likes || 0}</span>
-        </button>
-        <button class="action-button like2-button ${post.userLiked2 ? 'liked' : ''}" onclick="toggleLike2(${post.id})">
-            <i class="${post.userLiked2 ? 'fas' : 'far'} fa-thumbs-up"></i>
-            <span class="like2-count">${post.likes2 || 0}</span>
-        </button>
-            <button class="action-button" onclick="toggleComments(${post.id})">
-                <i class="far fa-comment"></i>
-                <span class="comment-count">${post.comments ? post.comments.length : 0}</span>
-            </button>
-        </div>
+<div class="post-actions">
+    <button class="action-button like-button ${post.userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+        <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
+        <span class="like-count">${formatNumber(post.likes || 0)}</span>
+    </button>
+    <button class="action-button like2-button ${post.userLiked2 ? 'liked' : ''}" onclick="toggleLike2(${post.id})">
+        <i class="${post.userLiked2 ? 'fas' : 'far'} fa-thumbs-up"></i>
+        <span class="like2-count">${formatNumber(post.likes2 || 0)}</span>
+    </button>
+    <button class="action-button" onclick="toggleComments(${post.id})">
+        <i class="far fa-comment"></i>
+        <span class="comment-count">${post.comments ? post.comments.length : 0}</span>
+    </button>
+</div>
             <div class="comments-section" id="comments-${post.id}">
                 <div class="comment-form">
             <textarea class="comment-input" 
