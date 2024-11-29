@@ -1570,7 +1570,7 @@ window.editPostReactions = function(postId) {
     const post = posts.find(p => p.id === postId);
     
     // Tạo modal chỉnh sửa
-    const modal = document.createElement('div');
+       const modal = document.createElement('div');
     modal.className = 'edit-reactions-modal';
     modal.innerHTML = `
         <div class="modal-content">
@@ -1586,19 +1586,21 @@ window.editPostReactions = function(postId) {
                 </div>
             </div>
             <div class="modal-actions">
-                <button onclick="closeReactionsModal()">Hủy</button>
-                <button onclick="savePostReactions(${postId})">Lưu</button>
+                <button class="cancel-btn" onclick="closeReactionsModal()">Hủy</button>
+                <button class="save-btn" onclick="savePostReactions(${postId})">Lưu</button>
             </div>
         </div>
     `;
     
     document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('active'), 10);
 };
 
 window.closeReactionsModal = function() {
     const modal = document.querySelector('.edit-reactions-modal');
     if (modal) {
-        modal.remove();
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300); // Đợi animation kết thúc
     }
 };
 
