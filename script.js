@@ -702,16 +702,20 @@ function addPostToDOM(post) {
                     <button class="post-menu-button" onclick="togglePostMenu(${post.id})">
                         <i class="fas fa-ellipsis-h"></i>
                     </button>
-        <div class="post-menu-dropdown" id="menu-${post.id}">
-            <div class="post-menu-item edit" onclick="editPost(${post.id})">
-                <i class="fas fa-edit"></i>
-                Chỉnh sửa
-            </div>
-            <div class="post-menu-item delete" onclick="deletePost(${post.id})">
-                <i class="fas fa-trash"></i>
-                Xóa
-                        </div>
-                    </div>
+<div class="post-menu-dropdown" id="menu-${post.id}">
+    <div class="post-menu-item edit" onclick="editPost(${post.id})">
+        <i class="fas fa-edit"></i>
+        Chỉnh sửa
+    </div>
+    <div class="post-menu-item delete" onclick="deletePost(${post.id})">
+        <i class="fas fa-trash"></i>
+        Xóa
+    </div>
+    <div class="post-menu-item edit-reactions" onclick="editReactions(${post.id})">
+        <i class="fas fa-heart"></i>
+        Sửa reactions
+    </div>
+</div>
                 </div>
             </div>
             ${post.content ? `<p class="post-text">${post.content}</p>` : ''}
@@ -1561,3 +1565,72 @@ function updateMediaTab() {
         mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
+window.editReactions = function(postId) {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const post = posts.find(p => p.id === postId);
+    
+    // Tạo modal chỉnh sửa
+    const modal = document.createElement('div');
+    modal.className = 'edit-reactions-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <h3>Chỉnh sửa Reactions</h3>
+            <div class="reactions-form">
+                <div class="reaction-input">
+                    <i class="fas fa-heart"></i>
+                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}" placeholder="Số lượt tim">
+                </div>
+                <div class="reaction-input">
+                    <i class="fas fa-thumbs-up"></i>
+                    <input type="number" id="likeCount" min="0" value="${post.likes2 || 0}" placeholder="Số lượt thích">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-edit" onclick="closeReactionsModal()">Hủy</button>
+                <button class="save-edit" onclick="saveReactions(${postId})">Lưu</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('active'), 10);
+};
+
+window.closeReactionsModal = function() {
+    const modal = document.querySelector('.edit-reactions-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.remove(), 300);
+    }
+};
+
+window.saveReactions = function(postId) {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const post = posts.find(p => p.id === postId);
+    
+    // Lấy giá trị mới
+    const newHeartCount = parseInt(document.getElementById('heartCount').value) || 0;
+    const newLikeCount = parseInt(document.getElementById('likeCount').value) || 0;
+    
+    // Cập nhật giá trị
+    post.likes = newHeartCount;
+    post.likes2 = newLikeCount;
+    
+    // Lưu vào localStorage
+    localStorage.setItem('posts', JSON.stringify(posts));
+    
+    // Cập nhật UI
+    const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+    postElement.querySelector('.like-count').textContent = newHeartCount;
+    postElement.querySelector('.like2-count').textContent = newLikeCount;
+    
+    // Đóng modal
+    closeReactionsModal();
+    
+    // Hiển thị thông báo
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = 'Đã cập nhật reactions thành công!';
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+};
