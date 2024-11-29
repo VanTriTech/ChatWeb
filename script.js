@@ -145,19 +145,31 @@
     }, 100);
 })();
 document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra đăng nhập
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.replace('https://vantritech.github.io/Shop/login.html');
+        return;
+    }
     // DOM Elements
     const postInput = document.getElementById('post-input');
     const postButton = document.getElementById('post-button');
     const mediaInput = document.getElementById('media-input');
     const postsContainer = document.getElementById('posts-container');
     const mediaPreview = document.querySelector('.media-preview');
-    const profileName = document.querySelector('.profile-name').textContent;
-    const profileUsername = document.querySelector('.profile-username').textContent;
+    const profileName = document.querySelector('.profile-name')?.textContent;
+    const profileUsername = document.querySelector('.profile-username')?.textContent;
     const navItems = document.querySelectorAll('.nav-item');
     const contentSections = document.querySelectorAll('.content-section');
-    
 
     let selectedMedia = [];
+    // Khởi tạo các chức năng
+    initializeNavigation();
+    initializePostInput();
+    initializeMediaUpload();
+    loadPosts();
+    updateMediaTab();
+    updateReactionCounts();
+});
 
     // Navigation Tabs
     navItems.forEach(item => {
@@ -332,38 +344,41 @@ window.deletePost = function(postId) {
     }
 };
 
-    window.toggleLike = function(postId) {
-        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-        const post = posts.find(p => p.id === postId);
-        const currentUser = document.querySelector('.profile-username').textContent;
+window.toggleLike = function(postId) {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+    
+    const currentUser = document.querySelector('.profile-username')?.textContent;
+    if (!currentUser) return;
+    
+    if (!post.likes) post.likes = 0;
+    if (!post.likedBy) post.likedBy = [];
+    
+    const likeButton = document.querySelector(`[data-post-id="${postId}"] .like-button`);
+    if (!likeButton) return;
+    
+    const likeIcon = likeButton.querySelector('i');
+    const likeCount = likeButton.querySelector('.like-count');
+    
+    if (post.likedBy.includes(currentUser)) {
+        // Unlike
+        post.likes = Math.max(0, post.likes - 1);
+        post.likedBy = post.likedBy.filter(user => user !== currentUser);
+        post.userLiked = false;
+        likeButton.classList.remove('liked');
+        likeIcon.className = 'far fa-heart';
+    } else {
+        // Like
+        post.likes++;
+        post.likedBy.push(currentUser);
+        post.userLiked = true;
+        likeButton.classList.add('liked');
+        likeIcon.className = 'fas fa-heart';
+        addLikeAnimation(likeButton);
+    }
         
-        if (!post.likes) post.likes = 0;
-        if (!post.likedBy) post.likedBy = [];
-        
-        const likeButton = document.querySelector(`[data-post-id="${postId}"] .like-button`);
-        const likeIcon = likeButton.querySelector('i');
-        const likeCount = likeButton.querySelector('.like-count');
-        
-        if (post.likedBy.includes(currentUser)) {
-            // Unlike
-            post.likes--;
-            post.likedBy = post.likedBy.filter(user => user !== currentUser);
-            post.userLiked = false;
-            likeButton.classList.remove('liked');
-            likeIcon.className = 'far fa-heart';
-        } else {
-            // Like
-            post.likes++;
-            post.likedBy.push(currentUser);
-            post.userLiked = true;
-            likeButton.classList.add('liked');
-            likeIcon.className = 'fas fa-heart';
-            
-            // Thêm hiệu ứng animation khi like
-            addLikeAnimation(likeButton);
-        }
-        
-    likeCount.textContent = formatNumber(post.likes);
+    updateReactionCount(likeCount, post.likes);
     localStorage.setItem('posts', JSON.stringify(posts));
 };
         
@@ -1632,11 +1647,13 @@ window.savePostReactions = function(postId) {
     alert('Đã cập nhật reactions thành công!');
 };
 function formatNumber(num) {
+    if (!num) return '0';
+    num = parseInt(num);
     if (num >= 1000000) {
-        return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     }
     if (num >= 1000) {
-        return (num / 1000).toFixed(1).replace('.0', '') + 'K';
+        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     }
     return num.toString();
 }
