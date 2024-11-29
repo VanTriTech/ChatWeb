@@ -145,31 +145,19 @@
     }, 100);
 })();
 document.addEventListener('DOMContentLoaded', function() {
-    // Kiểm tra đăng nhập
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
-        window.location.replace('https://vantritech.github.io/Shop/login.html');
-        return;
-    }
     // DOM Elements
     const postInput = document.getElementById('post-input');
     const postButton = document.getElementById('post-button');
     const mediaInput = document.getElementById('media-input');
     const postsContainer = document.getElementById('posts-container');
     const mediaPreview = document.querySelector('.media-preview');
-    const profileName = document.querySelector('.profile-name')?.textContent;
-    const profileUsername = document.querySelector('.profile-username')?.textContent;
+    const profileName = document.querySelector('.profile-name').textContent;
+    const profileUsername = document.querySelector('.profile-username').textContent;
     const navItems = document.querySelectorAll('.nav-item');
     const contentSections = document.querySelectorAll('.content-section');
+    
 
     let selectedMedia = [];
-    // Khởi tạo các chức năng
-    initializeNavigation();
-    initializePostInput();
-    initializeMediaUpload();
-    loadPosts();
-    updateMediaTab();
-    updateReactionCounts();
-});
 
     // Navigation Tabs
     navItems.forEach(item => {
@@ -344,43 +332,39 @@ window.deletePost = function(postId) {
     }
 };
 
-window.toggleLike = function(postId) {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const post = posts.find(p => p.id === postId);
-    if (!post) return;
-    
-    const currentUser = document.querySelector('.profile-username')?.textContent;
-    if (!currentUser) return;
-    
-    if (!post.likes) post.likes = 0;
-    if (!post.likedBy) post.likedBy = [];
-    
-    const likeButton = document.querySelector(`[data-post-id="${postId}"] .like-button`);
-    if (!likeButton) return;
-    
-    const likeIcon = likeButton.querySelector('i');
-    const likeCount = likeButton.querySelector('.like-count');
-    
-    if (post.likedBy.includes(currentUser)) {
-        // Unlike
-        post.likes = Math.max(0, post.likes - 1);
-        post.likedBy = post.likedBy.filter(user => user !== currentUser);
-        post.userLiked = false;
-        likeButton.classList.remove('liked');
-        likeIcon.className = 'far fa-heart';
-    } else {
-        // Like
-        post.likes++;
-        post.likedBy.push(currentUser);
-        post.userLiked = true;
-        likeButton.classList.add('liked');
-        likeIcon.className = 'fas fa-heart';
-        addLikeAnimation(likeButton);
-    }
+    window.toggleLike = function(postId) {
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        const post = posts.find(p => p.id === postId);
+        const currentUser = document.querySelector('.profile-username').textContent;
         
-    updateReactionCount(likeCount, post.likes);
-    localStorage.setItem('posts', JSON.stringify(posts));
-};
+        if (!post.likes) post.likes = 0;
+        if (!post.likedBy) post.likedBy = [];
+        
+        const likeButton = document.querySelector(`[data-post-id="${postId}"] .like-button`);
+        const likeIcon = likeButton.querySelector('i');
+        const likeCount = likeButton.querySelector('.like-count');
+        
+        if (post.likedBy.includes(currentUser)) {
+            // Unlike
+            post.likes--;
+            post.likedBy = post.likedBy.filter(user => user !== currentUser);
+            post.userLiked = false;
+            likeButton.classList.remove('liked');
+            likeIcon.className = 'far fa-heart';
+        } else {
+            // Like
+            post.likes++;
+            post.likedBy.push(currentUser);
+            post.userLiked = true;
+            likeButton.classList.add('liked');
+            likeIcon.className = 'fas fa-heart';
+            
+            // Thêm hiệu ứng animation khi like
+            addLikeAnimation(likeButton);
+        }
+        
+        likeCount.textContent = post.likes;
+        localStorage.setItem('posts', JSON.stringify(posts));
         
         // Lưu trạng thái hiển thị vào localStorage
         const commentStates = JSON.parse(localStorage.getItem('commentStates') || '{}');
@@ -736,20 +720,20 @@ function addPostToDOM(post) {
             </div>
             ${post.content ? `<p class="post-text">${post.content}</p>` : ''}
             ${mediaHTML}
-<div class="post-actions">
-    <button class="action-button like-button ${post.userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
-        <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
-        <span class="like-count">${formatNumber(post.likes || 0)}</span>
-    </button>
-    <button class="action-button like2-button ${post.userLiked2 ? 'liked' : ''}" onclick="toggleLike2(${post.id})">
-        <i class="${post.userLiked2 ? 'fas' : 'far'} fa-thumbs-up"></i>
-        <span class="like2-count">${formatNumber(post.likes2 || 0)}</span>
-    </button>
-    <button class="action-button" onclick="toggleComments(${post.id})">
-        <i class="far fa-comment"></i>
-        <span class="comment-count">${post.comments ? post.comments.length : 0}</span>
-    </button>
-</div>
+    <div class="post-actions">
+        <button class="action-button like-button ${post.userLiked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+            <i class="${post.userLiked ? 'fas' : 'far'} fa-heart"></i>
+            <span class="like-count">${post.likes || 0}</span>
+        </button>
+        <button class="action-button like2-button ${post.userLiked2 ? 'liked' : ''}" onclick="toggleLike2(${post.id})">
+            <i class="${post.userLiked2 ? 'fas' : 'far'} fa-thumbs-up"></i>
+            <span class="like2-count">${post.likes2 || 0}</span>
+        </button>
+            <button class="action-button" onclick="toggleComments(${post.id})">
+                <i class="far fa-comment"></i>
+                <span class="comment-count">${post.comments ? post.comments.length : 0}</span>
+            </button>
+        </div>
             <div class="comments-section" id="comments-${post.id}">
                 <div class="comment-form">
             <textarea class="comment-input" 
@@ -1493,13 +1477,12 @@ window.toggleLike2 = function(postId) {
         like2Button.classList.add('liked');
         like2Icon.className = 'fas fa-thumbs-up';
         
+        // Thêm hiệu ứng animation khi like
         addLike2Animation(like2Button);
     }
     
-    // Cập nhật UI với số đã được định dạng
-    like2Count.textContent = formatNumber(post.likes2);
+    like2Count.textContent = post.likes2;
     localStorage.setItem('posts', JSON.stringify(posts));
-};
 };
 
 // Thêm hiệu ứng animation cho like2
@@ -1595,16 +1578,16 @@ window.editPostReactions = function(postId) {
             <div class="reactions-form">
                 <div class="reaction-input">
                     <i class="fas fa-heart"></i>
-                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}" placeholder="Số lượt tim">
+                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}">
                 </div>
                 <div class="reaction-input">
                     <i class="fas fa-thumbs-up"></i>
-                    <input type="number" id="thumbsCount" min="0" value="${post.likes2 || 0}" placeholder="Số lượt thích">
+                    <input type="number" id="thumbsCount" min="0" value="${post.likes2 || 0}">
                 </div>
             </div>
             <div class="modal-actions">
-                <button onclick="closeReactionsModal()">Hủy</button>
-                <button onclick="savePostReactions(${postId})">Lưu thay đổi</button>
+                <button class="cancel-btn" onclick="closeReactionsModal()">Hủy</button>
+                <button class="save-btn" onclick="savePostReactions(${postId})">Lưu</button>
             </div>
         </div>
     `;
@@ -1637,8 +1620,8 @@ window.savePostReactions = function(postId) {
     
     // Cập nhật UI
     const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-    postElement.querySelector('.like-count').textContent = formatNumber(heartCount);
-    postElement.querySelector('.like2-count').textContent = formatNumber(thumbsCount);
+    postElement.querySelector('.like-count').textContent = heartCount;
+    postElement.querySelector('.like2-count').textContent = thumbsCount;
     
     // Đóng modal
     closeReactionsModal();
@@ -1646,30 +1629,3 @@ window.savePostReactions = function(postId) {
     // Hiển thị thông báo thành công
     alert('Đã cập nhật reactions thành công!');
 };
-function formatNumber(num) {
-    if (!num) return '0';
-    num = parseInt(num);
-    if (num >= 1000000) {
-        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    }
-    if (num >= 1000) {
-        return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    }
-    return num.toString();
-}
-// Thêm hàm để cập nhật hiển thị số khi load trang
-function updateReactionCounts() {
-    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    posts.forEach(post => {
-        const postElement = document.querySelector(`[data-post-id="${post.id}"]`);
-        if (postElement) {
-            const likeCount = postElement.querySelector('.like-count');
-            const like2Count = postElement.querySelector('.like2-count');
-            
-            if (likeCount) likeCount.textContent = formatNumber(post.likes || 0);
-            if (like2Count) like2Count.textContent = formatNumber(post.likes2 || 0);
-        }
-    });
-}
-// Thêm event listener để cập nhật số lượng reactions khi trang load
-document.addEventListener('DOMContentLoaded', updateReactionCounts);
