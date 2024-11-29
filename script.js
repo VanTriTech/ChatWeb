@@ -707,13 +707,13 @@ function addPostToDOM(post) {
         <i class="fas fa-edit"></i>
         Chỉnh sửa
     </div>
+    <div class="post-menu-item edit-reactions" onclick="editPostReactions(${post.id})">
+        <i class="fas fa-heart"></i>
+        Sửa reactions
+    </div>
     <div class="post-menu-item delete" onclick="deletePost(${post.id})">
         <i class="fas fa-trash"></i>
         Xóa
-    </div>
-    <div class="post-menu-item edit-reactions" onclick="editReactions(${post.id})">
-        <i class="fas fa-heart"></i>
-        Sửa reactions
     </div>
 </div>
                 </div>
@@ -1565,7 +1565,7 @@ function updateMediaTab() {
         mediaSection.innerHTML = '<div class="empty-state">Chưa có Media được gắn thẻ @LanYouJin!</div>';
     }
 }
-window.editReactions = function(postId) {
+window.editPostReactions = function(postId) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     const post = posts.find(p => p.id === postId);
     
@@ -1578,59 +1578,52 @@ window.editReactions = function(postId) {
             <div class="reactions-form">
                 <div class="reaction-input">
                     <i class="fas fa-heart"></i>
-                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}" placeholder="Số lượt tim">
+                    <input type="number" id="heartCount" min="0" value="${post.likes || 0}">
                 </div>
                 <div class="reaction-input">
                     <i class="fas fa-thumbs-up"></i>
-                    <input type="number" id="likeCount" min="0" value="${post.likes2 || 0}" placeholder="Số lượt thích">
+                    <input type="number" id="thumbsCount" min="0" value="${post.likes2 || 0}">
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="cancel-edit" onclick="closeReactionsModal()">Hủy</button>
-                <button class="save-edit" onclick="saveReactions(${postId})">Lưu</button>
+                <button onclick="closeReactionsModal()">Hủy</button>
+                <button onclick="savePostReactions(${postId})">Lưu</button>
             </div>
         </div>
     `;
     
     document.body.appendChild(modal);
-    setTimeout(() => modal.classList.add('active'), 10);
 };
 
 window.closeReactionsModal = function() {
     const modal = document.querySelector('.edit-reactions-modal');
     if (modal) {
-        modal.classList.remove('active');
-        setTimeout(() => modal.remove(), 300);
+        modal.remove();
     }
 };
 
-window.saveReactions = function(postId) {
+window.savePostReactions = function(postId) {
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
     const post = posts.find(p => p.id === postId);
     
-    // Lấy giá trị mới
-    const newHeartCount = parseInt(document.getElementById('heartCount').value) || 0;
-    const newLikeCount = parseInt(document.getElementById('likeCount').value) || 0;
+    const heartCount = parseInt(document.getElementById('heartCount').value) || 0;
+    const thumbsCount = parseInt(document.getElementById('thumbsCount').value) || 0;
     
-    // Cập nhật giá trị
-    post.likes = newHeartCount;
-    post.likes2 = newLikeCount;
+    // Cập nhật số lượng reactions
+    post.likes = heartCount;
+    post.likes2 = thumbsCount;
     
     // Lưu vào localStorage
     localStorage.setItem('posts', JSON.stringify(posts));
     
     // Cập nhật UI
     const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-    postElement.querySelector('.like-count').textContent = newHeartCount;
-    postElement.querySelector('.like2-count').textContent = newLikeCount;
+    postElement.querySelector('.like-count').textContent = heartCount;
+    postElement.querySelector('.like2-count').textContent = thumbsCount;
     
     // Đóng modal
     closeReactionsModal();
     
-    // Hiển thị thông báo
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = 'Đã cập nhật reactions thành công!';
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    // Hiển thị thông báo thành công
+    alert('Đã cập nhật reactions thành công!');
 };
