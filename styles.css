@@ -1526,7 +1526,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1542,13 +1542,21 @@ body {
 }
 
 .edit-reactions-modal .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 24px;
     width: 90%;
     max-width: 400px;
     transform: translateY(-20px);
     transition: transform 0.3s ease;
+    border: 1px solid #333;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+.edit-reactions-modal h3 {
+    color: #fff;
+    font-size: 20px;
+    margin-bottom: 24px;
+    text-align: center;
 }
 
 .edit-reactions-modal.active .modal-content {
@@ -1556,41 +1564,67 @@ body {
 }
 
 .reactions-form {
-    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .reaction-input {
     display: flex;
     align-items: center;
-    margin: 10px 0;
-    gap: 10px;
+    gap: 16px;
+    background: #2a2a2a;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #333;
 }
 
 .reaction-input i {
-    font-size: 20px;
+    font-size: 24px;
     width: 30px;
     text-align: center;
 }
-
+.reaction-input input::-webkit-inner-spin-button,
+.reaction-input input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 .reaction-input input {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
     width: 100px;
+    padding: 8px;
+    outline: none;
+}
+.reaction-input i.fa-heart {
+    color: #f91880;
+}
+.reaction-input i.fa-thumbs-up {
+    color: #1d9bf0;
 }
 
 .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 12px;
+    margin-top: 24px;
 }
 
 .modal-actions button {
-    padding: 8px 16px;
+    padding: 10px 20px;
+    border-radius: 9999px;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+.modal-actions button:first-child {
+    background: transparent;
+    color: #1d9bf0;
+    border: 1px solid #1d9bf0;
 }
 
 .modal-actions .cancel-btn {
@@ -1602,6 +1636,11 @@ body {
     color: white;
 }
 
+.modal-actions button:last-child {
+    background: #1d9bf0;
+    color: white;
+}
+
 .modal-actions button:hover {
-    opacity: 0.9;
+    opacity: 0.8;
 }
