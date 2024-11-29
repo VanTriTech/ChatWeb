@@ -1477,12 +1477,13 @@ window.toggleLike2 = function(postId) {
         like2Button.classList.add('liked');
         like2Icon.className = 'fas fa-thumbs-up';
         
-        // Thêm hiệu ứng animation khi like
         addLike2Animation(like2Button);
     }
     
-    like2Count.textContent = post.likes2;
+    // Cập nhật UI với số đã được định dạng
+    like2Count.textContent = formatNumber(post.likes2);
     localStorage.setItem('posts', JSON.stringify(posts));
+};
 };
 
 // Thêm hiệu ứng animation cho like2
@@ -1620,8 +1621,8 @@ window.savePostReactions = function(postId) {
     
     // Cập nhật UI
     const postElement = document.querySelector(`[data-post-id="${postId}"]`);
-    postElement.querySelector('.like-count').textContent = heartCount;
-    postElement.querySelector('.like2-count').textContent = thumbsCount;
+    postElement.querySelector('.like-count').textContent = formatNumber(heartCount);
+    postElement.querySelector('.like2-count').textContent = formatNumber(thumbsCount);
     
     // Đóng modal
     closeReactionsModal();
@@ -1629,3 +1630,28 @@ window.savePostReactions = function(postId) {
     // Hiển thị thông báo thành công
     alert('Đã cập nhật reactions thành công!');
 };
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1).replace('.0', '') + 'K';
+    }
+    return num.toString();
+}
+// Thêm hàm để cập nhật hiển thị số khi load trang
+function updateReactionCounts() {
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    posts.forEach(post => {
+        const postElement = document.querySelector(`[data-post-id="${post.id}"]`);
+        if (postElement) {
+            const likeCount = postElement.querySelector('.like-count');
+            const like2Count = postElement.querySelector('.like2-count');
+            
+            if (likeCount) likeCount.textContent = formatNumber(post.likes || 0);
+            if (like2Count) like2Count.textContent = formatNumber(post.likes2 || 0);
+        }
+    });
+}
+// Thêm event listener để cập nhật số lượng reactions khi trang load
+document.addEventListener('DOMContentLoaded', updateReactionCounts);
