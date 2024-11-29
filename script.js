@@ -363,8 +363,9 @@ window.deletePost = function(postId) {
             addLikeAnimation(likeButton);
         }
         
-        likeCount.textContent = formatNumber(post.likes);
-        localStorage.setItem('posts', JSON.stringify(posts));
+    likeCount.textContent = formatNumber(post.likes);
+    localStorage.setItem('posts', JSON.stringify(posts));
+};
         
         // Lưu trạng thái hiển thị vào localStorage
         const commentStates = JSON.parse(localStorage.getItem('commentStates') || '{}');
